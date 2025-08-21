@@ -136,6 +136,49 @@ Comprehensive project documentation is available in the `/docs` folder:
 - `06-Repository-Skeleton.md` - Project structure reference
 - `07-Risk-Register.md` - Identified risks and mitigation strategies
 
+## Testing Guidelines
+
+**IMPORTANT: Always write tests alongside implementation - never commit code without tests**
+
+### Testing Strategy
+1. **Unit Tests**: Test individual functions and utilities (Vitest)
+2. **Integration Tests**: Test component interactions and API endpoints
+3. **E2E Tests**: Test complete user workflows (Playwright)
+4. **Test Coverage**: Aim for >80% coverage on critical paths
+
+### Testing Requirements
+- **Crypto functions**: Must have comprehensive unit tests for security
+- **UI Components**: Test user interactions and error states
+- **API Endpoints**: Test all request/response scenarios
+- **Error Handling**: Test failure modes and edge cases
+- **Browser Compatibility**: Test across different browsers for WebRTC/crypto
+
+### Test Organization
+```
+src/
+  crypto/
+    keys.test.ts
+    device.test.ts
+    qr.test.ts
+    scanner.test.ts
+    fingerprint.test.ts
+  components/
+    pairing/
+      qr-display.test.tsx
+      qr-scanner.test.tsx
+  pages/
+    pairing.test.tsx
+```
+
+### Test Commands
+```bash
+yarn test           # Run all unit tests
+yarn test:watch     # Run tests in watch mode
+yarn test:ui        # Run tests with UI
+yarn test:coverage  # Run tests with coverage report
+yarn test:e2e       # Run E2E tests
+```
+
 ## Development Notes
 
 - PWA requires HTTPS for many features (File System Access, Web Push)
@@ -145,3 +188,5 @@ Comprehensive project documentation is available in the `/docs` folder:
 - BLE pairing is optional enhancement (Chromium only)
 - **Package Manager**: Always use `yarn` for consistency across the project
 - **Backend**: Use `Makefile` commands for all backend development tasks
+- **Testing**: Write comprehensive tests for every feature before committing code
+- **Git Identity**: Configured as `Anh Nguyen <anhngw@gmail.com>`
