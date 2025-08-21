@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+yarn-error.log
+npm-debug.log*
+
+# Build outputs
+/app/dist/
+/app/build/
+/server/bin/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+coverage/
+coverage.out
+coverage.html
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Go specific
+vendor/
+
+# Temporary files
+*.tmp
+*.temp
+
+# PWA service worker
+/app/src/sw.js
+
+# TURN server logs
+/server/infra/coturn.log
