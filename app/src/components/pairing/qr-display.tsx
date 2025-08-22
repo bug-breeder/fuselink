@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Card, CardBody } from '@heroui/card';
-import { Button } from '@heroui/button';
-import { Spinner } from '@heroui/spinner';
-import { generateQRCodeDataURL, generatePairingData } from '../../crypto/qr';
-import { generateDeviceFingerprint, formatSafetyWords } from '../../crypto/fingerprint';
-import type { Device } from '../../state/types';
+import type { Device } from "../../state/types";
+
+import { useEffect, useState } from "react";
+import { Card, CardBody } from "@heroui/card";
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
+
+import { generateQRCodeDataURL, generatePairingData } from "../../crypto/qr";
+import {
+  generateDeviceFingerprint,
+  formatSafetyWords,
+} from "../../crypto/fingerprint";
 
 interface QRDisplayProps {
   device: Device;
@@ -13,10 +18,10 @@ interface QRDisplayProps {
 }
 
 export function QRDisplay({ device, onClose, className }: QRDisplayProps) {
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [safetyWords, setSafetyWords] = useState<string>('');
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [safetyWords, setSafetyWords] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     generateQRData();
@@ -25,22 +30,29 @@ export function QRDisplay({ device, onClose, className }: QRDisplayProps) {
   const generateQRData = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
 
       // Generate pairing data (ICE servers now use defaults, not embedded in QR)
-      const signalingURL = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/signaling`;
-      
+      const signalingURL = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws/signaling`;
+
       const pairingData = generatePairingData(device, signalingURL);
-      
+
       // Generate QR code
       const qrUrl = await generateQRCodeDataURL(pairingData);
+
       setQrCodeUrl(qrUrl);
 
       // Generate safety words for verification
-      const fingerprint = await generateDeviceFingerprint(device.id, device.pubKeyJwk);
+      const fingerprint = await generateDeviceFingerprint(
+        device.id,
+        device.pubKeyJwk,
+      );
+
       setSafetyWords(formatSafetyWords(fingerprint.safetyWords));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate QR code');
+      setError(
+        err instanceof Error ? err.message : "Failed to generate QR code",
+      );
     } finally {
       setLoading(false);
     }
@@ -94,11 +106,7 @@ export function QRDisplay({ device, onClose, className }: QRDisplayProps) {
 
         {/* QR Code */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
-          <img 
-            src={qrCodeUrl} 
-            alt="Pairing QR Code" 
-            className="w-64 h-64"
-          />
+          <img alt="Pairing QR Code" className="w-64 h-64" src={qrCodeUrl} />
         </div>
 
         {/* Device Info */}
@@ -124,18 +132,10 @@ export function QRDisplay({ device, onClose, className }: QRDisplayProps) {
 
         {/* Actions */}
         <div className="flex gap-2 w-full">
-          <Button 
-            variant="light" 
-            onPress={handleRefresh}
-            className="flex-1"
-          >
+          <Button className="flex-1" variant="light" onPress={handleRefresh}>
             Refresh
           </Button>
-          <Button 
-            color="primary" 
-            onPress={onClose}
-            className="flex-1"
-          >
+          <Button className="flex-1" color="primary" onPress={onClose}>
             Done
           </Button>
         </div>

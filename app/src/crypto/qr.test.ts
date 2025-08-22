@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
 import {
   generatePairingData,
   generateQRCodeDataURL,
@@ -7,59 +8,60 @@ import {
   getIceServersForPairing,
   expandPublicKey,
   PairingQRData,
-} from './qr';
+} from "./qr";
 
 const mockNavigator = {
-  platform: 'MacIntel',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+  platform: "MacIntel",
+  userAgent:
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
 };
 
-Object.defineProperty(global, 'navigator', {
+Object.defineProperty(global, "navigator", {
   value: mockNavigator,
   writable: true,
 });
 
 const mockWindow = {
   location: {
-    origin: 'https://localhost:3000',
+    origin: "https://localhost:3000",
   },
 };
 
-Object.defineProperty(global, 'window', {
+Object.defineProperty(global, "window", {
   value: mockWindow,
   writable: true,
 });
 
 // Mock QRCode library
-vi.mock('qrcode', () => ({
+vi.mock("qrcode", () => ({
   default: {
     toDataURL: vi.fn(),
   },
 }));
 
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 
-describe('QR Code Generation and Parsing', () => {
+describe("QR Code Generation and Parsing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('generatePairingData', () => {
-    it('should generate valid ultra-compact pairing data structure', () => {
+  describe("generatePairingData", () => {
+    it("should generate valid ultra-compact pairing data structure", () => {
       const device = {
-        id: 'test-device-id',
-        name: 'Test Device',
+        id: "test-device-id",
+        name: "Test Device",
         pubKeyJwk: {
-          kty: 'EC',
-          crv: 'P-256',
-          x: 'test-x-value',
-          y: 'test-y-value',
+          kty: "EC",
+          crv: "P-256",
+          x: "test-x-value",
+          y: "test-y-value",
         },
         lastSeen: Date.now(),
         isOnline: true,
       };
 
-      const signalingURL = 'wss://example.com/signaling';
+      const signalingURL = "wss://example.com/signaling";
 
       const result = generatePairingData(device, signalingURL);
 
@@ -76,57 +78,63 @@ describe('QR Code Generation and Parsing', () => {
     });
   });
 
-  describe('generateQRCodeDataURL', () => {
-    it('should generate QR code data URL', async () => {
-      const mockDataURL = 'data:image/png;base64,mockqrcode';
+  describe("generateQRCodeDataURL", () => {
+    it("should generate QR code data URL", async () => {
+      const mockDataURL = "data:image/png;base64,mockqrcode";
+
       (QRCode.toDataURL as any).mockResolvedValue(mockDataURL);
 
       const pairingData: PairingQRData = {
         v: 1,
-        id: 'test-device-id',
-        key: ['test-x-value', 'test-y-value'],
-        signal: 'wss://example.com/signaling',
+        id: "test-device-id",
+        key: ["test-x-value", "test-y-value"],
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
       const result = await generateQRCodeDataURL(pairingData);
 
       expect(result).toBe(mockDataURL);
-      expect(QRCode.toDataURL).toHaveBeenCalledWith(JSON.stringify(pairingData), {
-        errorCorrectionLevel: 'M',
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF',
+      expect(QRCode.toDataURL).toHaveBeenCalledWith(
+        JSON.stringify(pairingData),
+        {
+          errorCorrectionLevel: "M",
+          margin: 2,
+          color: {
+            dark: "#000000",
+            light: "#FFFFFF",
+          },
+          width: 256,
         },
-        width: 256,
-      });
+      );
     });
 
-    it('should handle QR code generation errors', async () => {
-      (QRCode.toDataURL as any).mockRejectedValue(new Error('QR generation failed'));
+    it("should handle QR code generation errors", async () => {
+      (QRCode.toDataURL as any).mockRejectedValue(
+        new Error("QR generation failed"),
+      );
 
       const pairingData: PairingQRData = {
         v: 1,
-        id: 'test-device-id',
-        key: ['test-x-value', 'test-y-value'],
-        signal: 'wss://example.com/signaling',
+        id: "test-device-id",
+        key: ["test-x-value", "test-y-value"],
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
       await expect(generateQRCodeDataURL(pairingData)).rejects.toThrow(
-        'Failed to generate QR code: QR generation failed'
+        "Failed to generate QR code: QR generation failed",
       );
     });
   });
 
-  describe('parsePairingData', () => {
-    it('should parse valid ultra-compact pairing data', () => {
+  describe("parsePairingData", () => {
+    it("should parse valid ultra-compact pairing data", () => {
       const pairingData: PairingQRData = {
         v: 1,
-        id: 'a'.repeat(64), // 64-character hex string
-        key: ['test-x-value', 'test-y-value'],
-        signal: 'wss://example.com/signaling',
+        id: "a".repeat(64), // 64-character hex string
+        key: ["test-x-value", "test-y-value"],
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
@@ -136,18 +144,18 @@ describe('QR Code Generation and Parsing', () => {
       expect(result).toEqual(pairingData);
     });
 
-    it('should parse intermediate compact format (with device name)', () => {
+    it("should parse intermediate compact format (with device name)", () => {
       const intermediateData = {
         v: 1,
-        id: 'a'.repeat(64),
-        name: 'Test Device',
+        id: "a".repeat(64),
+        name: "Test Device",
         key: {
-          kty: 'EC',
-          crv: 'P-256',
-          x: 'test-x-value',
-          y: 'test-y-value',
+          kty: "EC",
+          crv: "P-256",
+          x: "test-x-value",
+          y: "test-y-value",
         },
-        signal: 'wss://example.com/signaling',
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
@@ -164,19 +172,19 @@ describe('QR Code Generation and Parsing', () => {
       });
     });
 
-    it('should parse legacy pairing data format', () => {
+    it("should parse legacy pairing data format", () => {
       const legacyData = {
         version: 1,
-        deviceId: 'a'.repeat(64),
-        deviceName: 'Test Device',
+        deviceId: "a".repeat(64),
+        deviceName: "Test Device",
         pubKeyJwk: {
-          kty: 'EC',
-          crv: 'P-256',
-          x: 'test-x-value',
-          y: 'test-y-value',
+          kty: "EC",
+          crv: "P-256",
+          x: "test-x-value",
+          y: "test-y-value",
         },
-        signalingURL: 'wss://example.com/signaling',
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+        signalingURL: "wss://example.com/signaling",
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
         timestamp: Date.now(),
       };
 
@@ -193,155 +201,164 @@ describe('QR Code Generation and Parsing', () => {
       });
     });
 
-    it('should reject invalid JSON', () => {
-      const invalidJson = '{ invalid json }';
+    it("should reject invalid JSON", () => {
+      const invalidJson = "{ invalid json }";
 
       expect(() => parsePairingData(invalidJson)).toThrow(
-        'QR code does not contain valid JSON data'
+        "QR code does not contain valid JSON data",
       );
     });
 
-    it('should reject ultra-compact data without required fields', () => {
+    it("should reject ultra-compact data without required fields", () => {
       const invalidData = {
         v: 1,
-        id: 'a'.repeat(64),
+        id: "a".repeat(64),
         // Missing key, signal
       };
 
       expect(() => parsePairingData(JSON.stringify(invalidData))).toThrow(
-        'Invalid pairing QR code format'
+        "Invalid pairing QR code format",
       );
     });
 
-    it('should reject data without signaling URL', () => {
+    it("should reject data without signaling URL", () => {
       const invalidData = {
         v: 1,
-        id: 'a'.repeat(64),
-        key: ['test-x-value', 'test-y-value'],
+        id: "a".repeat(64),
+        key: ["test-x-value", "test-y-value"],
         // Missing signal
       };
 
       expect(() => parsePairingData(JSON.stringify(invalidData))).toThrow(
-        'Missing signaling information'
+        "Missing signaling information",
       );
     });
 
-    it('should reject invalid device ID format', () => {
+    it("should reject invalid device ID format", () => {
       const invalidData = {
         v: 1,
-        id: 'too-short', // Should be 64 characters
-        key: ['test-x-value', 'test-y-value'],
-        signal: 'wss://example.com/signaling',
+        id: "too-short", // Should be 64 characters
+        key: ["test-x-value", "test-y-value"],
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
       expect(() => parsePairingData(JSON.stringify(invalidData))).toThrow(
-        'Invalid device ID format'
+        "Invalid device ID format",
       );
     });
 
-    it('should reject invalid public key format', () => {
+    it("should reject invalid public key format", () => {
       const invalidData = {
         v: 1,
-        id: 'a'.repeat(64),
-        key: ['test-x-value'], // Should have 2 coordinates  
-        signal: 'wss://example.com/signaling',
+        id: "a".repeat(64),
+        key: ["test-x-value"], // Should have 2 coordinates
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
       expect(() => parsePairingData(JSON.stringify(invalidData))).toThrow(
-        'Invalid pairing QR code format'
+        "Invalid pairing QR code format",
       );
     });
 
-    it('should accept valid ultra-compact pairing data with all fields', () => {
+    it("should accept valid ultra-compact pairing data with all fields", () => {
       const validData = {
         v: 1,
-        id: 'a'.repeat(64),
-        key: ['test-x-value', 'test-y-value'],
-        signal: 'wss://example.com/signaling',
+        id: "a".repeat(64),
+        key: ["test-x-value", "test-y-value"],
+        signal: "wss://example.com/signaling",
         ts: Date.now(),
       };
 
       const result = parsePairingData(JSON.stringify(validData));
+
       expect(result).toEqual(validData);
     });
   });
 
-  describe('expandPublicKey', () => {
-    it('should expand compact key format to full JWK', () => {
-      const compactKey: [string, string] = ['test-x-value', 'test-y-value'];
+  describe("expandPublicKey", () => {
+    it("should expand compact key format to full JWK", () => {
+      const compactKey: [string, string] = ["test-x-value", "test-y-value"];
       const result = expandPublicKey(compactKey);
-      
+
       expect(result).toEqual({
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value',
-        y: 'test-y-value',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value",
+        y: "test-y-value",
         ext: true,
         key_ops: [],
       });
     });
   });
 
-  describe('getIceServersForPairing', () => {
-    it('should return default ICE servers for pairing', () => {
+  describe("getIceServersForPairing", () => {
+    it("should return default ICE servers for pairing", () => {
       const iceServers = getIceServersForPairing();
-      
+
       expect(iceServers).toHaveLength(10);
-      
+
       // Should include Google STUN servers
-      const googleServers = iceServers.filter(server => 
-        server.urls.includes('stun.l.google.com') || 
-        server.urls.includes('stun1.l.google.com') ||
-        server.urls.includes('stun2.l.google.com') ||
-        server.urls.includes('stun3.l.google.com') ||
-        server.urls.includes('stun4.l.google.com')
+      const googleServers = iceServers.filter(
+        (server) =>
+          server.urls.includes("stun.l.google.com") ||
+          server.urls.includes("stun1.l.google.com") ||
+          server.urls.includes("stun2.l.google.com") ||
+          server.urls.includes("stun3.l.google.com") ||
+          server.urls.includes("stun4.l.google.com"),
       );
+
       expect(googleServers).toHaveLength(9);
     });
   });
 
-  describe('getDefaultIceServers', () => {
-    it('should return comprehensive Google ICE servers configuration', () => {
+  describe("getDefaultIceServers", () => {
+    it("should return comprehensive Google ICE servers configuration", () => {
       const iceServers = getDefaultIceServers();
-      
+
       expect(iceServers).toHaveLength(10);
-      
+
       // Check Google STUN servers are included
-      const googleServers = iceServers.filter(server => 
-        server.urls.includes('stun.l.google.com') || 
-        server.urls.includes('stun1.l.google.com') ||
-        server.urls.includes('stun2.l.google.com') ||
-        server.urls.includes('stun3.l.google.com') ||
-        server.urls.includes('stun4.l.google.com')
+      const googleServers = iceServers.filter(
+        (server) =>
+          server.urls.includes("stun.l.google.com") ||
+          server.urls.includes("stun1.l.google.com") ||
+          server.urls.includes("stun2.l.google.com") ||
+          server.urls.includes("stun3.l.google.com") ||
+          server.urls.includes("stun4.l.google.com"),
       );
+
       expect(googleServers).toHaveLength(9);
-      
+
       // Check Twilio fallback server is included
-      const twilioServer = iceServers.find(server => 
-        server.urls.includes('global.stun.twilio.com')
+      const twilioServer = iceServers.find((server) =>
+        server.urls.includes("global.stun.twilio.com"),
       );
+
       expect(twilioServer).toBeDefined();
-      expect(twilioServer?.urls).toBe('stun:global.stun.twilio.com:3478');
-      
+      expect(twilioServer?.urls).toBe("stun:global.stun.twilio.com:3478");
+
       // Check variety of ports are used
-      const ports = iceServers.map(server => {
-        const match = server.urls.match(/:(\d+)$/);
-        return match ? parseInt(match[1]) : null;
-      }).filter(Boolean);
-      
+      const ports = iceServers
+        .map((server) => {
+          const match = server.urls.match(/:(\d+)$/);
+
+          return match ? parseInt(match[1]) : null;
+        })
+        .filter(Boolean);
+
       expect(ports).toContain(19302);
       expect(ports).toContain(3478);
       expect(ports).toContain(5349);
     });
 
-    it('should return valid RTCIceServer objects', () => {
+    it("should return valid RTCIceServer objects", () => {
       const iceServers = getDefaultIceServers();
-      
-      iceServers.forEach(server => {
-        expect(server).toHaveProperty('urls');
-        expect(typeof server.urls).toBe('string');
+
+      iceServers.forEach((server) => {
+        expect(server).toHaveProperty("urls");
+        expect(typeof server.urls).toBe("string");
         expect(server.urls).toMatch(/^stun:/);
       });
     });

@@ -14,16 +14,19 @@ export async function generateDeviceKeyPair(): Promise<DeviceKeyPair> {
   try {
     const keyPair = await crypto.subtle.generateKey(
       {
-        name: 'ECDH',
-        namedCurve: 'P-256',
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       true, // extractable - needed for JWK export
-      ['deriveKey', 'deriveBits']
+      ["deriveKey", "deriveBits"],
     );
 
     // Export public key as JWK for storage and transmission
-    const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
-    
+    const publicKeyJwk = await crypto.subtle.exportKey(
+      "jwk",
+      keyPair.publicKey,
+    );
+
     // Generate deviceId from public key
     const deviceId = await deriveDeviceId(publicKeyJwk);
 
@@ -33,7 +36,9 @@ export async function generateDeviceKeyPair(): Promise<DeviceKeyPair> {
       deviceId,
     };
   } catch (error) {
-    throw new Error(`Failed to generate device key pair: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate device key pair: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -41,7 +46,9 @@ export async function generateDeviceKeyPair(): Promise<DeviceKeyPair> {
  * Derive a unique deviceId from a public key
  * Uses SHA-256 hash of the JWK representation
  */
-export async function deriveDeviceId(publicKeyJwk: JsonWebKey): Promise<string> {
+export async function deriveDeviceId(
+  publicKeyJwk: JsonWebKey,
+): Promise<string> {
   try {
     // Create deterministic string representation of the public key
     const keyString = JSON.stringify({
@@ -54,55 +61,67 @@ export async function deriveDeviceId(publicKeyJwk: JsonWebKey): Promise<string> 
     // Hash the key string to create deviceId
     const encoder = new TextEncoder();
     const data = encoder.encode(keyString);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
     // Convert to hex string
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const deviceId = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
+    const deviceId = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
     return deviceId;
   } catch (error) {
-    throw new Error(`Failed to derive device ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to derive device ID: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
 /**
  * Import a private key from stored JWK format
  */
-export async function importPrivateKey(privateKeyJwk: JsonWebKey): Promise<CryptoKey> {
+export async function importPrivateKey(
+  privateKeyJwk: JsonWebKey,
+): Promise<CryptoKey> {
   try {
     return await crypto.subtle.importKey(
-      'jwk',
+      "jwk",
       privateKeyJwk,
       {
-        name: 'ECDH',
-        namedCurve: 'P-256',
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       false, // not extractable after import
-      ['deriveKey', 'deriveBits']
+      ["deriveKey", "deriveBits"],
     );
   } catch (error) {
-    throw new Error(`Failed to import private key: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to import private key: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
 /**
  * Import a public key from JWK format
  */
-export async function importPublicKey(publicKeyJwk: JsonWebKey): Promise<CryptoKey> {
+export async function importPublicKey(
+  publicKeyJwk: JsonWebKey,
+): Promise<CryptoKey> {
   try {
     return await crypto.subtle.importKey(
-      'jwk',
+      "jwk",
       publicKeyJwk,
       {
-        name: 'ECDH',
-        namedCurve: 'P-256',
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       false,
-      []
+      [],
     );
   } catch (error) {
-    throw new Error(`Failed to import public key: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to import public key: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -112,20 +131,22 @@ export async function importPublicKey(publicKeyJwk: JsonWebKey): Promise<CryptoK
  */
 export async function deriveSharedSecret(
   privateKey: CryptoKey,
-  publicKeyJwk: JsonWebKey
+  publicKeyJwk: JsonWebKey,
 ): Promise<ArrayBuffer> {
   try {
     const otherPublicKey = await importPublicKey(publicKeyJwk);
-    
+
     return await crypto.subtle.deriveBits(
       {
-        name: 'ECDH',
+        name: "ECDH",
         public: otherPublicKey,
       },
       privateKey,
-      256 // 32 bytes
+      256, // 32 bytes
     );
   } catch (error) {
-    throw new Error(`Failed to derive shared secret: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to derive shared secret: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

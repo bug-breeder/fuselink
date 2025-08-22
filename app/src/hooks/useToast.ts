@@ -1,20 +1,30 @@
-import { addToast } from '@heroui/toast';
+import { addToast } from "@heroui/toast";
 
 export interface ToastOptions {
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  variant?: "default" | "destructive" | "success" | "warning";
   duration?: number;
 }
 
 export function useToast() {
   const showToast = (options: ToastOptions) => {
-    const { title, description, variant = 'default', duration = 5000 } = options;
+    const {
+      title,
+      description,
+      variant = "default",
+      duration = 5000,
+    } = options;
 
     // Map our variant to HeroUI toast types
-    const toastVariant = variant === 'destructive' ? 'danger' : 
-                        variant === 'success' ? 'success' :
-                        variant === 'warning' ? 'warning' : 'default';
+    const toastVariant =
+      variant === "destructive"
+        ? "danger"
+        : variant === "success"
+          ? "success"
+          : variant === "warning"
+            ? "warning"
+            : "default";
 
     addToast({
       title,
@@ -25,19 +35,19 @@ export function useToast() {
   };
 
   const success = (title: string, description?: string) => {
-    showToast({ title, description, variant: 'success' });
+    showToast({ title, description, variant: "success" });
   };
 
   const error = (title: string, description?: string) => {
-    showToast({ title, description, variant: 'destructive' });
+    showToast({ title, description, variant: "destructive" });
   };
 
   const warning = (title: string, description?: string) => {
-    showToast({ title, description, variant: 'warning' });
+    showToast({ title, description, variant: "warning" });
   };
 
   const info = (title: string, description?: string) => {
-    showToast({ title, description, variant: 'default' });
+    showToast({ title, description, variant: "default" });
   };
 
   return {

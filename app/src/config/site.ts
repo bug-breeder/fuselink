@@ -2,7 +2,8 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Fuselink",
-  description: "Secure peer-to-peer file synchronization across devices with end-to-end encryption.",
+  description:
+    "Secure peer-to-peer file synchronization across devices with end-to-end encryption.",
   navItems: [
     {
       label: "Home",

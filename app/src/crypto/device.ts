@@ -1,10 +1,11 @@
 // Device identity management and initialization
 
-import { generateDeviceKeyPair } from './keys';
-import type { Device } from '../state/types';
+import type { Device } from "../state/types";
 
-const DEVICE_KEYS_STORAGE_KEY = 'fuselink-device-keys';
-const DEVICE_INFO_STORAGE_KEY = 'fuselink-device-info';
+import { generateDeviceKeyPair } from "./keys";
+
+const DEVICE_KEYS_STORAGE_KEY = "fuselink-device-keys";
+const DEVICE_INFO_STORAGE_KEY = "fuselink-device-info";
 
 export interface StoredDeviceKeys {
   publicKeyJwk: JsonWebKey;
@@ -20,13 +21,14 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
   try {
     // Try to load existing device keys
     const existingKeys = loadDeviceKeys();
-    
+
     if (existingKeys) {
       // Device already exists, load stored info
       const deviceInfo = loadDeviceInfo();
+
       return {
         id: existingKeys.deviceId,
-        name: deviceInfo?.name || 'My Device',
+        name: deviceInfo?.name || "My Device",
         pubKeyJwk: existingKeys.publicKeyJwk,
         lastSeen: Date.now(),
         isOnline: true,
@@ -34,13 +36,16 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
     }
 
     // First run - generate new device identity
-    console.log('First run detected, generating new device identity...');
-    
+    console.log("First run detected, generating new device identity...");
+
     const keyPair = await generateDeviceKeyPair();
-    
+
     // Export private key for storage (we need it for ECDH operations)
-    const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
-    
+    const privateKeyJwk = await crypto.subtle.exportKey(
+      "jwk",
+      keyPair.privateKey,
+    );
+
     // Store keys securely
     const deviceKeys: StoredDeviceKeys = {
       publicKeyJwk: keyPair.publicKeyJwk,
@@ -48,9 +53,9 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
       deviceId: keyPair.deviceId,
       createdAt: Date.now(),
     };
-    
+
     storeDeviceKeys(deviceKeys);
-    
+
     // Store device info
     const device: Device = {
       id: keyPair.deviceId,
@@ -59,14 +64,16 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
       lastSeen: Date.now(),
       isOnline: true,
     };
-    
+
     storeDeviceInfo(device);
-    
-    console.log('Device identity created:', device.id);
+
+    console.log("Device identity created:", device.id);
+
     return device;
-    
   } catch (error) {
-    throw new Error(`Failed to initialize device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to initialize device: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -76,23 +83,25 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
 export async function getDevicePrivateKey(): Promise<CryptoKey | null> {
   try {
     const keys = loadDeviceKeys();
+
     if (!keys?.privateKeyJwk) {
       return null;
     }
 
     // Import the private key
     return await crypto.subtle.importKey(
-      'jwk',
+      "jwk",
       keys.privateKeyJwk,
       {
-        name: 'ECDH',
-        namedCurve: 'P-256',
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       false,
-      ['deriveKey', 'deriveBits']
+      ["deriveKey", "deriveBits"],
     );
   } catch (error) {
-    console.error('Failed to get device private key:', error);
+    console.error("Failed to get device private key:", error);
+
     return null;
   }
 }
@@ -107,13 +116,17 @@ export function getCurrentDevice(): Device | null {
 /**
  * Update device information
  */
-export function updateDeviceInfo(updates: Partial<Omit<Device, 'id' | 'pubKeyJwk'>>): void {
+export function updateDeviceInfo(
+  updates: Partial<Omit<Device, "id" | "pubKeyJwk">>,
+): void {
   const current = loadDeviceInfo();
+
   if (!current) {
-    throw new Error('No device initialized');
+    throw new Error("No device initialized");
   }
 
   const updated = { ...current, ...updates };
+
   storeDeviceInfo(updated);
 }
 
@@ -129,8 +142,9 @@ export function clearDeviceData(): void {
  * Generate a default device name based on browser/platform
  */
 function getDefaultDeviceName(): string {
-  const platform = navigator.platform || 'Unknown';
+  const platform = navigator.platform || "Unknown";
   const browser = getBrowserName();
+
   return `${platform} (${browser})`;
 }
 
@@ -139,13 +153,13 @@ function getDefaultDeviceName(): string {
  */
 function getBrowserName(): string {
   const userAgent = navigator.userAgent;
-  
-  if (userAgent.includes('Chrome')) return 'Chrome';
-  if (userAgent.includes('Firefox')) return 'Firefox';
-  if (userAgent.includes('Safari')) return 'Safari';
-  if (userAgent.includes('Edge')) return 'Edge';
-  
-  return 'Browser';
+
+  if (userAgent.includes("Chrome")) return "Chrome";
+  if (userAgent.includes("Firefox")) return "Firefox";
+  if (userAgent.includes("Safari")) return "Safari";
+  if (userAgent.includes("Edge")) return "Edge";
+
+  return "Browser";
 }
 
 /**
@@ -154,9 +168,11 @@ function getBrowserName(): string {
 function loadDeviceKeys(): StoredDeviceKeys | null {
   try {
     const stored = localStorage.getItem(DEVICE_KEYS_STORAGE_KEY);
+
     return stored ? JSON.parse(stored) : null;
   } catch (error) {
-    console.error('Failed to load device keys:', error);
+    console.error("Failed to load device keys:", error);
+
     return null;
   }
 }
@@ -168,7 +184,9 @@ function storeDeviceKeys(keys: StoredDeviceKeys): void {
   try {
     localStorage.setItem(DEVICE_KEYS_STORAGE_KEY, JSON.stringify(keys));
   } catch (error) {
-    throw new Error(`Failed to store device keys: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to store device keys: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -178,9 +196,11 @@ function storeDeviceKeys(keys: StoredDeviceKeys): void {
 function loadDeviceInfo(): Device | null {
   try {
     const stored = localStorage.getItem(DEVICE_INFO_STORAGE_KEY);
+
     return stored ? JSON.parse(stored) : null;
   } catch (error) {
-    console.error('Failed to load device info:', error);
+    console.error("Failed to load device info:", error);
+
     return null;
   }
 }
@@ -192,6 +212,8 @@ function storeDeviceInfo(device: Device): void {
   try {
     localStorage.setItem(DEVICE_INFO_STORAGE_KEY, JSON.stringify(device));
   } catch (error) {
-    throw new Error(`Failed to store device info: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to store device info: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

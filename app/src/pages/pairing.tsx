@@ -1,24 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@heroui/button';
-import { Card, CardBody } from '@heroui/card';
-import { useDeviceStore } from '../state/deviceStore';
-import { initializeDevice } from '../crypto/device';
-import { QRDisplay } from '../components/pairing/qr-display';
-import { QRScannerComponent } from '../components/pairing/qr-scanner';
-import { useToast } from '../hooks/useToast';
-import DefaultLayout from '../layouts/default';
-import type { PairingQRData } from '../crypto/qr';
-import { expandPublicKey } from '../crypto/qr';
-import type { Device } from '../state/types';
+import type { PairingQRData } from "../crypto/qr";
+import type { Device } from "../state/types";
 
-type PairingMode = 'select' | 'generate' | 'scan';
+import { useState, useEffect } from "react";
+import { Button } from "@heroui/button";
+import { Card, CardBody } from "@heroui/card";
+
+import { useDeviceStore } from "../state/deviceStore";
+import { initializeDevice } from "../crypto/device";
+import { QRDisplay } from "../components/pairing/qr-display";
+import { QRScannerComponent } from "../components/pairing/qr-scanner";
+import { useToast } from "../hooks/useToast";
+import DefaultLayout from "../layouts/default";
+import { expandPublicKey } from "../crypto/qr";
+
+type PairingMode = "select" | "generate" | "scan";
 
 export default function PairingPage() {
-  const [mode, setMode] = useState<PairingMode>('select');
+  const [mode, setMode] = useState<PairingMode>("select");
   const [currentDevice, setCurrentDevice] = useState<Device | null>(null);
   const [initializing, setInitializing] = useState(true);
-  
-  const { setCurrentDevice: setStoreCurrentDevice, addPairedDevice } = useDeviceStore();
+
+  const { setCurrentDevice: setStoreCurrentDevice, addPairedDevice } =
+    useDeviceStore();
   const { success, error } = useToast();
 
   useEffect(() => {
@@ -29,10 +32,14 @@ export default function PairingPage() {
     try {
       setInitializing(true);
       const device = await initializeDevice();
+
       setCurrentDevice(device);
       setStoreCurrentDevice(device);
     } catch (err) {
-      error('Device Initialization Failed', err instanceof Error ? err.message : 'Unknown error');
+      error(
+        "Device Initialization Failed",
+        err instanceof Error ? err.message : "Unknown error",
+      );
     } finally {
       setInitializing(false);
     }
@@ -52,15 +59,21 @@ export default function PairingPage() {
 
       // Add to paired devices
       addPairedDevice(pairedDevice);
-      
-      success('Device Paired Successfully', `Device has been added to your paired devices`);
-      
+
+      success(
+        "Device Paired Successfully",
+        `Device has been added to your paired devices`,
+      );
+
       // TODO: Initiate WebRTC connection for verification
       // TODO: Register pairing with server
-      
-      setMode('select');
+
+      setMode("select");
     } catch (err) {
-      error('Pairing Failed', err instanceof Error ? err.message : 'Unknown error');
+      error(
+        "Pairing Failed",
+        err instanceof Error ? err.message : "Unknown error",
+      );
     }
   };
 
@@ -69,7 +82,7 @@ export default function PairingPage() {
   };
 
   const handleBack = () => {
-    setMode('select');
+    setMode("select");
   };
 
   if (initializing) {
@@ -132,25 +145,26 @@ export default function PairingPage() {
         </Card>
 
         {/* Mode Selection */}
-        {mode === 'select' && (
+        {mode === "select" && (
           <div className="space-y-4">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardBody 
+              <CardBody
                 className="p-6 text-center"
-                onClick={() => handleModeSelect('generate')}
+                onClick={() => handleModeSelect("generate")}
               >
                 <div className="text-4xl mb-4">📱</div>
                 <h3 className="text-lg font-semibold mb-2">Share QR Code</h3>
                 <p className="text-default-500">
-                  Generate a QR code for another device to scan and pair with this device
+                  Generate a QR code for another device to scan and pair with
+                  this device
                 </p>
               </CardBody>
             </Card>
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardBody 
+              <CardBody
                 className="p-6 text-center"
-                onClick={() => handleModeSelect('scan')}
+                onClick={() => handleModeSelect("scan")}
               >
                 <div className="text-4xl mb-4">📷</div>
                 <h3 className="text-lg font-semibold mb-2">Scan QR Code</h3>
@@ -163,25 +177,25 @@ export default function PairingPage() {
         )}
 
         {/* QR Code Generation */}
-        {mode === 'generate' && (
+        {mode === "generate" && (
           <QRDisplay
+            className="max-w-md mx-auto"
             device={currentDevice}
             onClose={handleBack}
-            className="max-w-md mx-auto"
           />
         )}
 
         {/* QR Code Scanning */}
-        {mode === 'scan' && (
+        {mode === "scan" && (
           <QRScannerComponent
-            onScanSuccess={handleScanSuccess}
-            onCancel={handleBack}
             className="max-w-md mx-auto"
+            onCancel={handleBack}
+            onScanSuccess={handleScanSuccess}
           />
         )}
 
         {/* Back Button for non-select modes */}
-        {mode !== 'select' && (
+        {mode !== "select" && (
           <div className="text-center mt-6">
             <Button variant="light" onPress={handleBack}>
               ← Back to Options

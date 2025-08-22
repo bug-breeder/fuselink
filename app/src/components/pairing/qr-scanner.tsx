@@ -1,11 +1,20 @@
-import { useRef, useEffect, useState } from 'react';
-import { Card, CardBody } from '@heroui/card';
-import { Button } from '@heroui/button';
-import { Spinner } from '@heroui/spinner';
-import { QRScanner } from '../../crypto/scanner';
-import { parsePairingData, validatePairingTimestamp, expandPublicKey } from '../../crypto/qr';
-import { generateDeviceFingerprint, formatSafetyWords } from '../../crypto/fingerprint';
-import type { PairingQRData } from '../../crypto/qr';
+import type { PairingQRData } from "../../crypto/qr";
+
+import { useRef, useEffect, useState } from "react";
+import { Card, CardBody } from "@heroui/card";
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
+
+import { QRScanner } from "../../crypto/scanner";
+import {
+  parsePairingData,
+  validatePairingTimestamp,
+  expandPublicKey,
+} from "../../crypto/qr";
+import {
+  generateDeviceFingerprint,
+  formatSafetyWords,
+} from "../../crypto/fingerprint";
 
 interface QRScannerProps {
   onScanSuccess: (data: PairingQRData) => void;
@@ -13,18 +22,23 @@ interface QRScannerProps {
   className?: string;
 }
 
-export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRScannerProps) {
+export function QRScannerComponent({
+  onScanSuccess,
+  onCancel,
+  className,
+}: QRScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<QRScanner | null>(null);
-  
+
   const [isScanning, setIsScanning] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [scanResult, setScanResult] = useState<PairingQRData | null>(null);
-  const [safetyWords, setSafetyWords] = useState<string>('');
+  const [safetyWords, setSafetyWords] = useState<string>("");
   const [showVerification, setShowVerification] = useState(false);
 
   useEffect(() => {
     startScanning();
+
     return () => {
       stopScanning();
     };
@@ -35,20 +49,16 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
 
     try {
       setIsScanning(true);
-      setError('');
+      setError("");
 
       scannerRef.current = new QRScanner(videoRef.current);
-      
-      await scannerRef.current.start(
-        handleScanResult,
-        handleScanError,
-        {
-          preferredCamera: 'back',
-          maxScanTime: 60000, // 1 minute timeout
-        }
-      );
+
+      await scannerRef.current.start(handleScanResult, handleScanError, {
+        preferredCamera: "back",
+        maxScanTime: 60000, // 1 minute timeout
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start camera');
+      setError(err instanceof Error ? err.message : "Failed to start camera");
       setIsScanning(false);
     }
   };
@@ -65,22 +75,26 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
     try {
       // Parse QR code data
       const pairingData = parsePairingData(result.data);
-      
+
       // Validate timestamp
       if (!validatePairingTimestamp(pairingData)) {
-        throw new Error('QR code has expired. Please generate a new one.');
+        throw new Error("QR code has expired. Please generate a new one.");
       }
 
       // Generate safety words for verification (expand compact key format)
       const fullPublicKey = expandPublicKey(pairingData.key);
-      const fingerprint = await generateDeviceFingerprint(pairingData.id, fullPublicKey);
+      const fingerprint = await generateDeviceFingerprint(
+        pairingData.id,
+        fullPublicKey,
+      );
+
       setSafetyWords(formatSafetyWords(fingerprint.safetyWords));
-      
+
       setScanResult(pairingData);
       setShowVerification(true);
       stopScanning();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid QR code');
+      setError(err instanceof Error ? err.message : "Invalid QR code");
       // Continue scanning
     }
   };
@@ -99,12 +113,12 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
   const handleVerificationCancel = () => {
     setShowVerification(false);
     setScanResult(null);
-    setSafetyWords('');
+    setSafetyWords("");
     startScanning(); // Resume scanning
   };
 
   const handleRetry = () => {
-    setError('');
+    setError("");
     startScanning();
   };
 
@@ -144,17 +158,17 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
 
           {/* Actions */}
           <div className="flex gap-2 w-full">
-            <Button 
-              variant="light" 
-              onPress={handleVerificationCancel}
+            <Button
               className="flex-1"
+              variant="light"
+              onPress={handleVerificationCancel}
             >
               Cancel
             </Button>
-            <Button 
-              color="primary" 
-              onPress={handleVerificationConfirm}
+            <Button
               className="flex-1"
+              color="primary"
+              onPress={handleVerificationConfirm}
             >
               Pair Device
             </Button>
@@ -184,11 +198,11 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
         <div className="relative w-full max-w-sm aspect-square mb-6 bg-black rounded-lg overflow-hidden">
           <video
             ref={videoRef}
-            className="w-full h-full object-cover"
-            playsInline
             muted
+            playsInline
+            className="w-full h-full object-cover"
           />
-          
+
           {/* Scanning Overlay */}
           {isScanning && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -201,7 +215,7 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
           {/* Loading State */}
           {!isScanning && !error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
-              <Spinner size="lg" color="primary" />
+              <Spinner color="primary" size="lg" />
               <p className="text-white text-sm mt-2">Starting camera...</p>
             </div>
           )}
@@ -210,27 +224,17 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
         {/* Error State */}
         {error && (
           <div className="bg-danger-50 border border-danger-200 rounded-lg p-4 w-full mb-4">
-            <p className="text-danger-800 text-sm text-center">
-              {error}
-            </p>
+            <p className="text-danger-800 text-sm text-center">{error}</p>
           </div>
         )}
 
         {/* Actions */}
         <div className="flex gap-2 w-full">
-          <Button 
-            variant="light" 
-            onPress={onCancel}
-            className="flex-1"
-          >
+          <Button className="flex-1" variant="light" onPress={onCancel}>
             Cancel
           </Button>
           {error && (
-            <Button 
-              color="primary" 
-              onPress={handleRetry}
-              className="flex-1"
-            >
+            <Button className="flex-1" color="primary" onPress={handleRetry}>
               Retry
             </Button>
           )}

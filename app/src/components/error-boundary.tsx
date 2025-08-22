@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button } from '@heroui/button';
-import { Card, CardBody, CardHeader } from '@heroui/card';
+import React from "react";
+import { Button } from "@heroui/button";
+import { Card, CardBody, CardHeader } from "@heroui/card";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -13,7 +13,10 @@ interface ErrorBoundaryProps {
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -24,7 +27,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
     this.setState({ error, errorInfo });
   }
 
@@ -36,10 +39,21 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+
+        return (
+          <FallbackComponent
+            error={this.state.error}
+            resetError={this.resetError}
+          />
+        );
       }
 
-      return <DefaultErrorFallback error={this.state.error} resetError={this.resetError} />;
+      return (
+        <DefaultErrorFallback
+          error={this.state.error}
+          resetError={this.resetError}
+        />
+      );
     }
 
     return this.props.children;
@@ -57,7 +71,9 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="pb-0">
           <div className="flex flex-col">
-            <h1 className="text-lg font-semibold text-danger">Something went wrong</h1>
+            <h1 className="text-lg font-semibold text-danger">
+              Something went wrong
+            </h1>
             <p className="text-small text-default-500">
               An unexpected error occurred in the application
             </p>
@@ -72,19 +88,19 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
             </div>
           )}
           <div className="flex gap-2">
-            <Button 
-              color="primary" 
+            <Button
+              className="flex-1"
+              color="primary"
               variant="solid"
               onPress={resetError}
-              className="flex-1"
             >
               Try Again
             </Button>
-            <Button 
-              color="default" 
+            <Button
+              className="flex-1"
+              color="default"
               variant="bordered"
               onPress={() => window.location.reload()}
-              className="flex-1"
             >
               Reload Page
             </Button>
