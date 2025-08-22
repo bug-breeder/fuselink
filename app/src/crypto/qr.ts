@@ -42,8 +42,6 @@ export async function generateQRCodeDataURL(data: PairingQRData): Promise<string
     // Generate QR code with optimal settings for device pairing
     const qrCodeDataURL = await QRCode.toDataURL(jsonString, {
       errorCorrectionLevel: 'M', // Medium error correction
-      type: 'image/png',
-      quality: 0.92,
       margin: 2,
       color: {
         dark: '#000000',
@@ -54,7 +52,7 @@ export async function generateQRCodeDataURL(data: PairingQRData): Promise<string
 
     return qrCodeDataURL;
   } catch (error) {
-    throw new Error(`Failed to generate QR code: ${error.message}`);
+    throw new Error(`Failed to generate QR code: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -78,7 +76,7 @@ export async function generateQRCodeSVG(data: PairingQRData): Promise<string> {
 
     return svgString;
   } catch (error) {
-    throw new Error(`Failed to generate QR code SVG: ${error.message}`);
+    throw new Error(`Failed to generate QR code SVG: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

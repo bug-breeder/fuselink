@@ -1,6 +1,6 @@
 // Device identity management and initialization
 
-import { generateDeviceKeyPair, type DeviceKeyPair } from './keys';
+import { generateDeviceKeyPair } from './keys';
 import type { Device } from '../state/types';
 
 const DEVICE_KEYS_STORAGE_KEY = 'fuselink-device-keys';
@@ -66,7 +66,7 @@ export async function initializeDevice(deviceName?: string): Promise<Device> {
     return device;
     
   } catch (error) {
-    throw new Error(`Failed to initialize device: ${error.message}`);
+    throw new Error(`Failed to initialize device: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -168,7 +168,7 @@ function storeDeviceKeys(keys: StoredDeviceKeys): void {
   try {
     localStorage.setItem(DEVICE_KEYS_STORAGE_KEY, JSON.stringify(keys));
   } catch (error) {
-    throw new Error(`Failed to store device keys: ${error.message}`);
+    throw new Error(`Failed to store device keys: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -192,6 +192,6 @@ function storeDeviceInfo(device: Device): void {
   try {
     localStorage.setItem(DEVICE_INFO_STORAGE_KEY, JSON.stringify(device));
   } catch (error) {
-    throw new Error(`Failed to store device info: ${error.message}`);
+    throw new Error(`Failed to store device info: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

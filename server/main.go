@@ -10,14 +10,14 @@ import (
 	"time"
 
 	"github.com/alanguyen/fuselink/internal/http/handlers"
-	"github.com/alanguyen/fuselink/internal/signal"
+	signalhub "github.com/alanguyen/fuselink/internal/signal"
 	"github.com/rs/cors"
 )
 
 func main() {
 	// Configuration
 	port := getEnv("PORT", "8080")
-	dbURL := getEnv("DATABASE_URL", "postgres://localhost/fuselink?sslmode=disable")
+	// dbURL := getEnv("DATABASE_URL", "postgres://localhost/fuselink?sslmode=disable") // TODO: Implement database
 	vapidPublicKey := getEnv("VAPID_PUBLIC_KEY", "")
 	vapidPrivateKey := getEnv("VAPID_PRIVATE_KEY", "")
 	
@@ -30,13 +30,13 @@ func main() {
 	// }
 	// defer db.Close()
 
-	// Initialize signaling hub
-	hub := signal.NewHub()
+	// Initialize signaling hub for WebRTC
+	hub := signalhub.NewHub()
 	go hub.Run()
 
 	// Initialize HTTP handlers
 	handlers := handlers.New(handlers.Config{
-		// DB: db,
+		// DB: db,                    // TODO: Add database connection
 		SignalHub:       hub,
 		VAPIDPublicKey:  vapidPublicKey,
 		VAPIDPrivateKey: vapidPrivateKey,

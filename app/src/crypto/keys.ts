@@ -33,7 +33,7 @@ export async function generateDeviceKeyPair(): Promise<DeviceKeyPair> {
       deviceId,
     };
   } catch (error) {
-    throw new Error(`Failed to generate device key pair: ${error.message}`);
+    throw new Error(`Failed to generate device key pair: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -62,7 +62,7 @@ export async function deriveDeviceId(publicKeyJwk: JsonWebKey): Promise<string> 
     
     return deviceId;
   } catch (error) {
-    throw new Error(`Failed to derive device ID: ${error.message}`);
+    throw new Error(`Failed to derive device ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -82,7 +82,7 @@ export async function importPrivateKey(privateKeyJwk: JsonWebKey): Promise<Crypt
       ['deriveKey', 'deriveBits']
     );
   } catch (error) {
-    throw new Error(`Failed to import private key: ${error.message}`);
+    throw new Error(`Failed to import private key: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -102,7 +102,7 @@ export async function importPublicKey(publicKeyJwk: JsonWebKey): Promise<CryptoK
       []
     );
   } catch (error) {
-    throw new Error(`Failed to import public key: ${error.message}`);
+    throw new Error(`Failed to import public key: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -126,6 +126,6 @@ export async function deriveSharedSecret(
       256 // 32 bytes
     );
   } catch (error) {
-    throw new Error(`Failed to derive shared secret: ${error.message}`);
+    throw new Error(`Failed to derive shared secret: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

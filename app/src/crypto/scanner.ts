@@ -26,7 +26,7 @@ export function isBarcodeDetectorSupported(): boolean {
  */
 export async function scanWithBarcodeDetector(
   video: HTMLVideoElement,
-  options: ScannerOptions = {}
+  _options: ScannerOptions = {}
 ): Promise<ScanResult> {
   if (!isBarcodeDetectorSupported()) {
     throw new Error('BarcodeDetector is not supported');
@@ -59,7 +59,7 @@ export async function scanWithBarcodeDetector(
       timestamp: Date.now(),
     };
   } catch (error) {
-    throw new Error(`BarcodeDetector scanning failed: ${error.message}`);
+    throw new Error(`BarcodeDetector scanning failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -68,19 +68,17 @@ export async function scanWithBarcodeDetector(
  */
 export async function scanWithLibrary(
   video: HTMLVideoElement,
-  options: ScannerOptions = {}
+  _options: ScannerOptions = {}
 ): Promise<ScanResult> {
   try {
-    const result = await QrScanner.scanImage(video, {
-      returnDetailedScanResult: false,
-    });
+    const result = await QrScanner.scanImage(video);
 
     return {
-      data: result as string,
+      data: result,
       timestamp: Date.now(),
     };
   } catch (error) {
-    throw new Error(`QR Scanner library failed: ${error.message}`);
+    throw new Error(`QR Scanner library failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -96,7 +94,7 @@ export async function scanQRCode(
     try {
       return await scanWithBarcodeDetector(video, options);
     } catch (error) {
-      console.warn('BarcodeDetector failed, falling back to library:', error.message);
+      console.warn('BarcodeDetector failed, falling back to library:', error instanceof Error ? error.message : 'Unknown error');
     }
   }
 
@@ -137,7 +135,7 @@ export async function setupCameraStream(
 
     return stream;
   } catch (error) {
-    throw new Error(`Camera setup failed: ${error.message}`);
+    throw new Error(`Camera setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -192,7 +190,7 @@ export class QRScanner {
         } catch (error) {
           // Ignore scanning errors during continuous scanning
           // Only call onError for serious issues
-          if (error.message.includes('Camera') || error.message.includes('permission')) {
+          if ((error instanceof Error && error.message.includes('Camera')) || (error instanceof Error && error.message.includes('permission'))) {
             onError(error as Error);
             this.stop();
           }

@@ -40,9 +40,8 @@ export function Provider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <HeroUIProvider navigate={navigate} useHref={useHref}>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        {children}
+        <ToastProvider />
       </HeroUIProvider>
     </QueryClientProvider>
   );

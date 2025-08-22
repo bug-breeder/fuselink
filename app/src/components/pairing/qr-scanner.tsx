@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Card, CardBody } from '@heroui/card';
 import { Button } from '@heroui/button';
 import { Spinner } from '@heroui/spinner';

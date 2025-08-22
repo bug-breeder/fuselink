@@ -140,6 +140,23 @@ Comprehensive project documentation is available in the `/docs` folder:
 - `06-Repository-Skeleton.md` - Project structure reference
 - `07-Risk-Register.md` - Identified risks and mitigation strategies
 
+### Documentation Research Guidelines
+
+**IMPORTANT: Use Context7 for all library documentation needs**
+
+When working with external libraries or frameworks:
+1. **Primary**: Use Context7 MCP server for up-to-date documentation
+2. **Secondary**: Only use web search if Context7 doesn't have sufficient information
+3. **Context7 Usage**: Always call `resolve-library-id` first, then `get-library-docs`
+
+Example Context7 workflow:
+```bash
+# Find library ID
+resolve-library-id "heroui"
+# Get documentation
+get-library-docs "/heroui/core" --topic "components"
+```
+
 ## Testing Guidelines
 
 **IMPORTANT: Always write tests alongside implementation - never commit code without tests**
@@ -194,3 +211,22 @@ yarn test:e2e       # Run E2E tests
 - **Backend**: Use `Makefile` commands for all backend development tasks
 - **Testing**: Write comprehensive tests for every feature before committing code
 - **Git Identity**: Configured as `Anh Nguyen <anhngw@gmail.com>`
+
+### Known Issues & Solutions
+
+#### HeroUI ToastProvider
+**Issue**: ToastProvider causes blank page when used as wrapper component
+**Root Cause**: HeroUI's ToastProvider is a portal component, not a wrapper
+**Solution**: Use `{children}<ToastProvider />` instead of `<ToastProvider>{children}</ToastProvider>`
+
+**Background**: HeroUI's toast system renders as a portal to document.body, similar to React portals. When used as a wrapper, it prevents child components from rendering to the main React tree.
+
+#### Backend Import Conflicts
+**Issue**: Import conflicts between standard library and internal packages
+**Solution**: Use package aliases when naming conflicts occur
+```go
+import (
+    "os/signal"
+    signalhub "github.com/alanguyen/fuselink/internal/signal"
+)
+```

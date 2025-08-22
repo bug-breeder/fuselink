@@ -68,7 +68,7 @@ export async function generateSafetyWords(pubKeyJwk: JsonWebKey): Promise<string
 
     return safetyWords;
   } catch (error) {
-    throw new Error(`Failed to generate safety words: ${error.message}`);
+    throw new Error(`Failed to generate safety words: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -96,7 +96,7 @@ export async function generateDeviceFingerprint(
       hash,
     };
   } catch (error) {
-    throw new Error(`Failed to generate device fingerprint: ${error.message}`);
+    throw new Error(`Failed to generate device fingerprint: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
