@@ -8,6 +8,7 @@ import { QRScannerComponent } from '../components/pairing/qr-scanner';
 import { useToast } from '../hooks/useToast';
 import DefaultLayout from '../layouts/default';
 import type { PairingQRData } from '../crypto/qr';
+import { expandPublicKey } from '../crypto/qr';
 import type { Device } from '../state/types';
 
 type PairingMode = 'select' | 'generate' | 'scan';
@@ -39,19 +40,20 @@ export default function PairingPage() {
 
   const handleScanSuccess = async (pairingData: PairingQRData) => {
     try {
-      // Create device object from QR data
+      // Create device object from QR data (expand compact key format)
+      const fullPublicKey = expandPublicKey(pairingData.key);
       const pairedDevice: Device = {
-        id: pairingData.deviceId,
-        name: pairingData.deviceName,
-        pubKeyJwk: pairingData.pubKeyJwk,
-        lastSeen: pairingData.timestamp,
+        id: pairingData.id,
+        name: `Device ${pairingData.id.slice(0, 8)}`, // Generate temporary name, device will exchange real name after pairing
+        pubKeyJwk: fullPublicKey,
+        lastSeen: pairingData.ts,
         isOnline: false,
       };
 
       // Add to paired devices
       addPairedDevice(pairedDevice);
       
-      success('Device Paired Successfully', `${pairingData.deviceName} has been added to your paired devices`);
+      success('Device Paired Successfully', `Device has been added to your paired devices`);
       
       // TODO: Initiate WebRTC connection for verification
       // TODO: Register pairing with server

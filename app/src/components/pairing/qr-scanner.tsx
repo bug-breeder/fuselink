@@ -3,7 +3,7 @@ import { Card, CardBody } from '@heroui/card';
 import { Button } from '@heroui/button';
 import { Spinner } from '@heroui/spinner';
 import { QRScanner } from '../../crypto/scanner';
-import { parsePairingData, validatePairingTimestamp } from '../../crypto/qr';
+import { parsePairingData, validatePairingTimestamp, expandPublicKey } from '../../crypto/qr';
 import { generateDeviceFingerprint, formatSafetyWords } from '../../crypto/fingerprint';
 import type { PairingQRData } from '../../crypto/qr';
 
@@ -71,8 +71,9 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
         throw new Error('QR code has expired. Please generate a new one.');
       }
 
-      // Generate safety words for verification
-      const fingerprint = await generateDeviceFingerprint(pairingData.deviceId, pairingData.pubKeyJwk);
+      // Generate safety words for verification (expand compact key format)
+      const fullPublicKey = expandPublicKey(pairingData.key);
+      const fingerprint = await generateDeviceFingerprint(pairingData.id, fullPublicKey);
       setSafetyWords(formatSafetyWords(fingerprint.safetyWords));
       
       setScanResult(pairingData);
@@ -121,9 +122,9 @@ export function QRScannerComponent({ onScanSuccess, onCancel, className }: QRSca
           {/* Device Info */}
           <div className="bg-default-50 rounded-lg p-4 w-full mb-6">
             <div className="text-center mb-4">
-              <p className="font-medium text-lg">{scanResult.deviceName}</p>
+              <p className="font-medium text-lg">Device Pairing</p>
               <p className="text-xs text-default-500 font-mono">
-                {scanResult.deviceId.slice(0, 16)}...
+                ID: {scanResult.id.slice(0, 16)}...
               </p>
             </div>
           </div>

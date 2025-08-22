@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardBody } from '@heroui/card';
 import { Button } from '@heroui/button';
 import { Spinner } from '@heroui/spinner';
-import { generateQRCodeDataURL, generatePairingData, getDefaultIceServers } from '../../crypto/qr';
+import { generateQRCodeDataURL, generatePairingData } from '../../crypto/qr';
 import { generateDeviceFingerprint, formatSafetyWords } from '../../crypto/fingerprint';
 import type { Device } from '../../state/types';
 
@@ -27,11 +27,10 @@ export function QRDisplay({ device, onClose, className }: QRDisplayProps) {
       setLoading(true);
       setError('');
 
-      // Generate pairing data
+      // Generate pairing data (ICE servers now use defaults, not embedded in QR)
       const signalingURL = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/signaling`;
-      const iceServers = getDefaultIceServers();
       
-      const pairingData = generatePairingData(device, signalingURL, iceServers);
+      const pairingData = generatePairingData(device, signalingURL);
       
       // Generate QR code
       const qrUrl = await generateQRCodeDataURL(pairingData);

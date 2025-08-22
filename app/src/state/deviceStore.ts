@@ -23,7 +23,7 @@ interface DeviceState {
 
 export const useDeviceStore = create<DeviceState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       currentDevice: null,
       deviceId: null,
       deviceName: 'My Device',

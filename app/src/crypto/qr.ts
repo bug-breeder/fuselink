@@ -4,6 +4,15 @@ import QRCode from 'qrcode';
 import type { Device } from '../state/types';
 
 export interface PairingQRData {
+  v: number;           // version (shortened)
+  id: string;          // deviceId (shortened)
+  key: [string, string]; // pubKeyJwk as [x, y] coordinates only
+  signal: string;      // signalingURL (shortened)
+  ts: number;          // timestamp (shortened)
+}
+
+// Legacy interface for backward compatibility
+export interface LegacyPairingQRData {
   version: number;
   deviceId: string;
   deviceName: string;
@@ -13,22 +22,32 @@ export interface PairingQRData {
   timestamp: number;
 }
 
+// Intermediate format (compact with device name)
+export interface CompactPairingQRData {
+  v: number;
+  id: string;
+  name: string;
+  key: JsonWebKey;
+  signal: string;
+  ts: number;
+}
+
 /**
  * Generate QR code data for device pairing
  */
 export function generatePairingData(
   device: Device,
-  signalingURL: string,
-  iceServers: RTCIceServer[]
+  signalingURL: string
 ): PairingQRData {
+  // Ultra-compact format: remove device name and use minimal key representation
+  // Device name will be exchanged after pairing establishment
+  // Public key uses only x,y coordinates (P-256, EC, ext:true, key_ops:[] are implied)
   return {
-    version: 1,
-    deviceId: device.id,
-    deviceName: device.name,
-    pubKeyJwk: device.pubKeyJwk,
-    signalingURL,
-    iceServers,
-    timestamp: Date.now(),
+    v: 1,              // version
+    id: device.id,     // deviceId
+    key: [device.pubKeyJwk.x!, device.pubKeyJwk.y!], // pubKeyJwk as [x, y] coordinates
+    signal: signalingURL,   // signalingURL
+    ts: Date.now(),    // timestamp
   };
 }
 
@@ -87,26 +106,72 @@ export function parsePairingData(qrString: string): PairingQRData {
   try {
     const data = JSON.parse(qrString);
     
-    // Validate required fields
-    if (!data.version || !data.deviceId || !data.deviceName || !data.pubKeyJwk) {
-      throw new Error('Invalid pairing QR code format');
-    }
-
-    if (!data.signalingURL || !data.iceServers) {
-      throw new Error('Missing signaling or ICE server information');
+    // Support multiple format versions for backward compatibility
+    let normalizedData: PairingQRData;
+    
+    if (data.v !== undefined && Array.isArray(data.key)) {
+      // New ultra-compact format (v1 with key as [x, y] array)
+      if (!data.v || !data.id || !data.key || !Array.isArray(data.key) || data.key.length !== 2) {
+        throw new Error('Invalid pairing QR code format');
+      }
+      
+      if (!data.signal) {
+        throw new Error('Missing signaling information');
+      }
+      
+      normalizedData = data as PairingQRData;
+    } else if (data.v !== undefined) {
+      // Compact format with device name (intermediate version)
+      if (!data.v || !data.id || !data.name || !data.key) {
+        throw new Error('Invalid pairing QR code format');
+      }
+      
+      if (!data.signal) {
+        throw new Error('Missing signaling information');
+      }
+      
+      // Convert intermediate format to ultra-compact
+      normalizedData = {
+        v: data.v,
+        id: data.id,
+        key: [data.key.x, data.key.y],
+        signal: data.signal,
+        ts: data.ts,
+      };
+    } else {
+      // Legacy format - convert to ultra-compact format
+      if (!data.version || !data.deviceId || !data.deviceName || !data.pubKeyJwk) {
+        throw new Error('Invalid pairing QR code format');
+      }
+      
+      if (!data.signalingURL) {
+        throw new Error('Missing signaling information');
+      }
+      
+      normalizedData = {
+        v: data.version,
+        id: data.deviceId,
+        key: [data.pubKeyJwk.x, data.pubKeyJwk.y],
+        signal: data.signalingURL,
+        ts: data.timestamp,
+      };
     }
 
     // Validate deviceId format (64-character hex string)
-    if (typeof data.deviceId !== 'string' || data.deviceId.length !== 64) {
+    if (typeof normalizedData.id !== 'string' || normalizedData.id.length !== 64) {
       throw new Error('Invalid device ID format');
     }
 
-    // Basic JWK validation
-    if (!data.pubKeyJwk.kty || !data.pubKeyJwk.crv || !data.pubKeyJwk.x || !data.pubKeyJwk.y) {
+    // Validate key format (should be array of 2 base64url strings)
+    if (!Array.isArray(normalizedData.key) || normalizedData.key.length !== 2) {
+      throw new Error('Invalid public key format');
+    }
+    
+    if (typeof normalizedData.key[0] !== 'string' || typeof normalizedData.key[1] !== 'string') {
       throw new Error('Invalid public key format');
     }
 
-    return data as PairingQRData;
+    return normalizedData;
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new Error('QR code does not contain valid JSON data');
@@ -120,7 +185,7 @@ export function parsePairingData(qrString: string): PairingQRData {
  */
 export function validatePairingTimestamp(data: PairingQRData, maxAgeMinutes: number = 10): boolean {
   const now = Date.now();
-  const age = now - data.timestamp;
+  const age = now - data.ts;
   const maxAge = maxAgeMinutes * 60 * 1000; // Convert to milliseconds
   
   return age <= maxAge;
@@ -161,8 +226,30 @@ export function getDefaultIceServers(): RTCIceServer[] {
  * Generate a human-readable summary of QR data for display
  */
 export function formatPairingDataSummary(data: PairingQRData): string {
-  const device = data.deviceName || data.deviceId.slice(0, 8) + '...';
-  const timestamp = new Date(data.timestamp).toLocaleString();
+  const deviceId = data.id.slice(0, 8) + '...';
+  const timestamp = new Date(data.ts).toLocaleString();
   
-  return `Device: ${device}\nGenerated: ${timestamp}`;
+  return `Device ID: ${deviceId}\nGenerated: ${timestamp}`;
+}
+
+/**
+ * Convert compact key format back to full JWK for crypto operations
+ */
+export function expandPublicKey(compactKey: [string, string]): JsonWebKey {
+  return {
+    kty: 'EC',
+    crv: 'P-256',
+    x: compactKey[0],
+    y: compactKey[1],
+    ext: true,
+    key_ops: [],
+  };
+}
+
+/**
+ * Get the ICE servers configuration for WebRTC
+ * Since ICE servers are no longer in QR codes, this provides the default configuration
+ */
+export function getIceServersForPairing(): RTCIceServer[] {
+  return getDefaultIceServers();
 }

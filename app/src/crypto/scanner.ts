@@ -157,7 +157,7 @@ export class QRScanner {
   private scanning = false;
   private scanInterval: number | null = null;
 
-  constructor(private videoElement: HTMLVideoElement) {
+  constructor(videoElement: HTMLVideoElement) {
     this.video = videoElement;
   }
 
