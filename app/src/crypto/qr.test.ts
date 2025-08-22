@@ -3,6 +3,7 @@ import {
   generatePairingData,
   generateQRCodeDataURL,
   parsePairingData,
+  getDefaultIceServers,
   PairingQRData,
 } from './qr';
 
@@ -260,6 +261,51 @@ describe('QR Code Generation and Parsing', () => {
 
       const result = parsePairingData(JSON.stringify(validData));
       expect(result).toEqual(validData);
+    });
+  });
+
+  describe('getDefaultIceServers', () => {
+    it('should return comprehensive Google ICE servers configuration', () => {
+      const iceServers = getDefaultIceServers();
+      
+      expect(iceServers).toHaveLength(10);
+      
+      // Check Google STUN servers are included
+      const googleServers = iceServers.filter(server => 
+        server.urls.includes('stun.l.google.com') || 
+        server.urls.includes('stun1.l.google.com') ||
+        server.urls.includes('stun2.l.google.com') ||
+        server.urls.includes('stun3.l.google.com') ||
+        server.urls.includes('stun4.l.google.com')
+      );
+      expect(googleServers).toHaveLength(9);
+      
+      // Check Twilio fallback server is included
+      const twilioServer = iceServers.find(server => 
+        server.urls.includes('global.stun.twilio.com')
+      );
+      expect(twilioServer).toBeDefined();
+      expect(twilioServer?.urls).toBe('stun:global.stun.twilio.com:3478');
+      
+      // Check variety of ports are used
+      const ports = iceServers.map(server => {
+        const match = server.urls.match(/:(\d+)$/);
+        return match ? parseInt(match[1]) : null;
+      }).filter(Boolean);
+      
+      expect(ports).toContain(19302);
+      expect(ports).toContain(3478);
+      expect(ports).toContain(5349);
+    });
+
+    it('should return valid RTCIceServer objects', () => {
+      const iceServers = getDefaultIceServers();
+      
+      iceServers.forEach(server => {
+        expect(server).toHaveProperty('urls');
+        expect(typeof server.urls).toBe('string');
+        expect(server.urls).toMatch(/^stun:/);
+      });
     });
   });
 });

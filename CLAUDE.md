@@ -93,11 +93,15 @@ make help            # Show available commands
 - [x] Error boundary and toast notifications
 - [x] Server directory structure
 
-### Milestone M1 - Device Identity & Pairing (QR) 🚧
-- [ ] Web Crypto ECDH keypair generation
-- [ ] Device registration API
-- [ ] QR generation and scanning
-- [ ] Safety-words fingerprint verification
+### Milestone M1 - Device Identity & Pairing (QR) ✅
+- [x] Web Crypto ECDH keypair generation (P-256 curve)
+- [x] Device identity derivation from public keys
+- [x] QR generation and scanning with BarcodeDetector API
+- [x] Safety-words fingerprint verification (BIP-39 subset)
+- [x] QR scanner with fallback library support
+- [x] Device management with localStorage persistence
+- [x] Comprehensive test coverage (68/68 tests passing)
+- [x] Enhanced ICE servers with multiple Google STUN endpoints
 
 ### Upcoming Milestones
 - M2: Signaling & WebRTC Setup

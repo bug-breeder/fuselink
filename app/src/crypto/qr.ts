@@ -130,13 +130,27 @@ export function validatePairingTimestamp(data: PairingQRData, maxAgeMinutes: num
 
 /**
  * Get default ICE servers configuration
+ * Uses multiple Google STUN servers for redundancy and reliability
  */
 export function getDefaultIceServers(): RTCIceServer[] {
   return [
-    // Public STUN servers
+    // Google STUN servers (primary endpoints)
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    // TODO: Add configured TURN servers
+    { urls: 'stun:stun1.l.google.com:3478' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:3478' },
+    { urls: 'stun:stun4.l.google.com:19302' },
+    
+    // Google STUN servers (alternative ports)
+    { urls: 'stun:stun1.l.google.com:5349' },
+    { urls: 'stun:stun2.l.google.com:5349' },
+    { urls: 'stun:stun3.l.google.com:5349' },
+    { urls: 'stun:stun4.l.google.com:5349' },
+    
+    // Twilio public STUN server as additional fallback
+    { urls: 'stun:global.stun.twilio.com:3478' },
+    
+    // TODO: Add configured TURN servers for production
     // {
     //   urls: 'turn:your-turn-server.com:3478',
     //   username: 'username',
