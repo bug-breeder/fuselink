@@ -1,24 +1,20 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Vite + HeroUI",
-  description: "Make beautiful websites regardless of your design experience.",
+  name: "Fuselink",
+  description: "Secure peer-to-peer file synchronization across devices with end-to-end encryption.",
   navItems: [
     {
       label: "Home",
       href: "/",
     },
     {
+      label: "Pair Device",
+      href: "/pairing",
+    },
+    {
       label: "Docs",
       href: "/docs",
-    },
-    {
-      label: "Pricing",
-      href: "/pricing",
-    },
-    {
-      label: "Blog",
-      href: "/blog",
     },
     {
       label: "About",

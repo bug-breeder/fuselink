@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	// DB              *sql.DB
+	// DB              *sql.DB              // TODO: Add database connection
 	SignalHub       *signal.Hub
 	VAPIDPublicKey  string
 	VAPIDPrivateKey string
@@ -53,12 +53,53 @@ func (h *Handlers) Devices(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type DeviceRegistrationRequest struct {
+	DeviceID   string          `json:"deviceId"`
+	Name       string          `json:"name"`
+	PubKeyJwk  json.RawMessage `json:"pubKeyJwk"`
+}
+
+type DeviceRegistrationResponse struct {
+	DeviceID  string          `json:"deviceId"`
+	Name      string          `json:"name"`
+	PubKeyJwk json.RawMessage `json:"pubKeyJwk"`
+	CreatedAt string          `json:"createdAt"`
+}
+
 func (h *Handlers) registerDevice(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement device registration
+	var req DeviceRegistrationRequest
+	
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	// Basic validation
+	if req.DeviceID == "" || req.Name == "" {
+		http.Error(w, "deviceId and name are required", http.StatusBadRequest)
+		return
+	}
+
+	if len(req.DeviceID) != 64 { // SHA-256 hex string
+		http.Error(w, "invalid deviceId format", http.StatusBadRequest)
+		return
+	}
+
+	// TODO: Validate public key JWK format
+	// TODO: Verify deviceId matches the public key hash
+	// TODO: Store in database using sqlc queries
+
+	// For now, return success response
+	response := DeviceRegistrationResponse{
+		DeviceID:  req.DeviceID,
+		Name:      req.Name,
+		PubKeyJwk: req.PubKeyJwk,
+		CreatedAt: "2025-01-01T00:00:00Z", // TODO: Use actual timestamp
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Device registration endpoint - TODO",
-	})
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *Handlers) listDevices(w http.ResponseWriter, r *http.Request) {

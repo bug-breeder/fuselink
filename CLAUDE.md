@@ -93,11 +93,15 @@ make help            # Show available commands
 - [x] Error boundary and toast notifications
 - [x] Server directory structure
 
-### Milestone M1 - Device Identity & Pairing (QR) 🚧
-- [ ] Web Crypto ECDH keypair generation
-- [ ] Device registration API
-- [ ] QR generation and scanning
-- [ ] Safety-words fingerprint verification
+### Milestone M1 - Device Identity & Pairing (QR) ✅
+- [x] Web Crypto ECDH keypair generation (P-256 curve)
+- [x] Device identity derivation from public keys
+- [x] QR generation and scanning with BarcodeDetector API
+- [x] Safety-words fingerprint verification (BIP-39 subset)
+- [x] QR scanner with fallback library support
+- [x] Device management with localStorage persistence
+- [x] Comprehensive test coverage (68/68 tests passing)
+- [x] Enhanced ICE servers with multiple Google STUN endpoints
 
 ### Upcoming Milestones
 - M2: Signaling & WebRTC Setup
@@ -135,6 +139,66 @@ Comprehensive project documentation is available in the `/docs` folder:
 - `05-Testing-Strategy.md` - Testing approach and methodology
 - `06-Repository-Skeleton.md` - Project structure reference
 - `07-Risk-Register.md` - Identified risks and mitigation strategies
+
+### Documentation Research Guidelines
+
+**IMPORTANT: Use Context7 for all library documentation needs**
+
+When working with external libraries or frameworks:
+1. **Primary**: Use Context7 MCP server for up-to-date documentation
+2. **Secondary**: Only use web search if Context7 doesn't have sufficient information
+3. **Context7 Usage**: Always call `resolve-library-id` first, then `get-library-docs`
+
+Example Context7 workflow:
+```bash
+# Find library ID
+resolve-library-id "heroui"
+# Get documentation
+get-library-docs "/heroui/core" --topic "components"
+```
+
+## Testing Guidelines
+
+**IMPORTANT: Always write tests alongside implementation - never commit code without tests**
+
+### Testing Strategy
+1. **Unit Tests**: Test individual functions and utilities (Vitest)
+2. **Integration Tests**: Test component interactions and API endpoints
+3. **E2E Tests**: Test complete user workflows (Playwright)
+4. **Test Coverage**: Aim for >80% coverage on critical paths
+
+### Testing Requirements
+- **Crypto functions**: Must have comprehensive unit tests for security
+- **UI Components**: Test user interactions and error states
+- **API Endpoints**: Test all request/response scenarios
+- **Error Handling**: Test failure modes and edge cases
+- **Browser Compatibility**: Test across different browsers for WebRTC/crypto
+
+### Test Organization
+```
+src/
+  crypto/
+    keys.test.ts
+    device.test.ts
+    qr.test.ts
+    scanner.test.ts
+    fingerprint.test.ts
+  components/
+    pairing/
+      qr-display.test.tsx
+      qr-scanner.test.tsx
+  pages/
+    pairing.test.tsx
+```
+
+### Test Commands
+```bash
+yarn test           # Run all unit tests
+yarn test:watch     # Run tests in watch mode
+yarn test:ui        # Run tests with UI
+yarn test:coverage  # Run tests with coverage report
+yarn test:e2e       # Run E2E tests
+```
 
 ## Git Workflow
 
@@ -185,4 +249,24 @@ Comprehensive project documentation is available in the `/docs` folder:
 - BLE pairing is optional enhancement (Chromium only)
 - **Package Manager**: Always use `yarn` for consistency across the project
 - **Backend**: Use `Makefile` commands for all backend development tasks
+- **Testing**: Write comprehensive tests for every feature before committing code
 - **Git Identity**: Configured as `Anh Nguyen <anhngw@gmail.com>`
+
+### Known Issues & Solutions
+
+#### HeroUI ToastProvider
+**Issue**: ToastProvider causes blank page when used as wrapper component
+**Root Cause**: HeroUI's ToastProvider is a portal component, not a wrapper
+**Solution**: Use `{children}<ToastProvider />` instead of `<ToastProvider>{children}</ToastProvider>`
+
+**Background**: HeroUI's toast system renders as a portal to document.body, similar to React portals. When used as a wrapper, it prevents child components from rendering to the main React tree.
+
+#### Backend Import Conflicts
+**Issue**: Import conflicts between standard library and internal packages
+**Solution**: Use package aliases when naming conflicts occur
+```go
+import (
+    "os/signal"
+    signalhub "github.com/alanguyen/fuselink/internal/signal"
+)
+```
