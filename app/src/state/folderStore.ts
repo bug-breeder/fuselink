@@ -1,10 +1,11 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { FolderMapping } from './types';
+import type { FolderMapping } from "./types";
+
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface FolderState {
   folders: FolderMapping[];
-  
+
   // Actions
   addFolder: (folder: FolderMapping) => void;
   removeFolder: (folderId: string) => void;
@@ -18,54 +19,53 @@ export const useFolderStore = create<FolderState>()(
   persist(
     (set) => ({
       folders: [],
-      
-      addFolder: (folder) => 
+
+      addFolder: (folder) =>
         set((state) => ({
-          folders: [...state.folders, folder]
+          folders: [...state.folders, folder],
         })),
-      
-      removeFolder: (folderId) => 
+
+      removeFolder: (folderId) =>
         set((state) => ({
-          folders: state.folders.filter(f => f.id !== folderId)
+          folders: state.folders.filter((f) => f.id !== folderId),
         })),
-      
+
       updateFolder: (folderId, updates) =>
         set((state) => ({
-          folders: state.folders.map(folder =>
-            folder.id === folderId ? { ...folder, ...updates } : folder
-          )
+          folders: state.folders.map((folder) =>
+            folder.id === folderId ? { ...folder, ...updates } : folder,
+          ),
         })),
-      
+
       toggleFolderSync: (folderId) =>
         set((state) => ({
-          folders: state.folders.map(folder =>
-            folder.id === folderId 
+          folders: state.folders.map((folder) =>
+            folder.id === folderId
               ? { ...folder, syncEnabled: !folder.syncEnabled }
-              : folder
-          )
+              : folder,
+          ),
         })),
-      
+
       updateLastSync: (folderId, timestamp) =>
         set((state) => ({
-          folders: state.folders.map(folder =>
-            folder.id === folderId 
+          folders: state.folders.map((folder) =>
+            folder.id === folderId
               ? { ...folder, lastSync: timestamp }
-              : folder
-          )
+              : folder,
+          ),
         })),
-      
-      clearAllFolders: () => 
-        set({ folders: [] }),
+
+      clearAllFolders: () => set({ folders: [] }),
     }),
     {
-      name: 'fuselink-folders',
+      name: "fuselink-folders",
       partialize: (state) => ({
-        folders: state.folders.map(f => ({
+        folders: state.folders.map((f) => ({
           ...f,
           // Don't persist FileSystemDirectoryHandle as it's not serializable
-          handle: undefined
-        }))
+          handle: undefined,
+        })),
       }),
-    }
-  )
+    },
+  ),
 );

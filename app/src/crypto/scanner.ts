@@ -1,6 +1,6 @@
 // QR code scanning with BarcodeDetector and fallback library
 
-import QrScanner from 'qr-scanner';
+import QrScanner from "qr-scanner";
 
 export interface ScanResult {
   data: string;
@@ -8,7 +8,7 @@ export interface ScanResult {
 }
 
 export interface ScannerOptions {
-  preferredCamera?: 'front' | 'back';
+  preferredCamera?: "front" | "back";
   maxScanTime?: number; // Maximum time to scan in ms
   highlightScanRegion?: boolean;
   highlightCodeOutline?: boolean;
@@ -18,7 +18,7 @@ export interface ScannerOptions {
  * Check if BarcodeDetector is available in the browser
  */
 export function isBarcodeDetectorSupported(): boolean {
-  return 'BarcodeDetector' in window;
+  return "BarcodeDetector" in window;
 }
 
 /**
@@ -26,31 +26,31 @@ export function isBarcodeDetectorSupported(): boolean {
  */
 export async function scanWithBarcodeDetector(
   video: HTMLVideoElement,
-  _options: ScannerOptions = {}
+  _options: ScannerOptions = {},
 ): Promise<ScanResult> {
   if (!isBarcodeDetectorSupported()) {
-    throw new Error('BarcodeDetector is not supported');
+    throw new Error("BarcodeDetector is not supported");
   }
 
   try {
     const barcodeDetector = new (window as any).BarcodeDetector({
-      formats: ['qr_code']
+      formats: ["qr_code"],
     });
 
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d')!;
-    
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d")!;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
+
     // Draw current video frame to canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     // Detect QR codes in the frame
     const barcodes = await barcodeDetector.detect(canvas);
-    
+
     if (barcodes.length === 0) {
-      throw new Error('No QR code detected in frame');
+      throw new Error("No QR code detected in frame");
     }
 
     // Return the first QR code found
@@ -59,7 +59,9 @@ export async function scanWithBarcodeDetector(
       timestamp: Date.now(),
     };
   } catch (error) {
-    throw new Error(`BarcodeDetector scanning failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `BarcodeDetector scanning failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -68,7 +70,7 @@ export async function scanWithBarcodeDetector(
  */
 export async function scanWithLibrary(
   video: HTMLVideoElement,
-  _options: ScannerOptions = {}
+  _options: ScannerOptions = {},
 ): Promise<ScanResult> {
   try {
     const result = await QrScanner.scanImage(video);
@@ -78,7 +80,9 @@ export async function scanWithLibrary(
       timestamp: Date.now(),
     };
   } catch (error) {
-    throw new Error(`QR Scanner library failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `QR Scanner library failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -87,14 +91,17 @@ export async function scanWithLibrary(
  */
 export async function scanQRCode(
   video: HTMLVideoElement,
-  options: ScannerOptions = {}
+  options: ScannerOptions = {},
 ): Promise<ScanResult> {
   // Try native BarcodeDetector first
   if (isBarcodeDetectorSupported()) {
     try {
       return await scanWithBarcodeDetector(video, options);
     } catch (error) {
-      console.warn('BarcodeDetector failed, falling back to library:', error instanceof Error ? error.message : 'Unknown error');
+      console.warn(
+        "BarcodeDetector failed, falling back to library:",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
   }
 
@@ -107,12 +114,13 @@ export async function scanQRCode(
  */
 export async function setupCameraStream(
   videoElement: HTMLVideoElement,
-  options: ScannerOptions = {}
+  options: ScannerOptions = {},
 ): Promise<MediaStream> {
   try {
     const constraints: MediaStreamConstraints = {
       video: {
-        facingMode: options.preferredCamera === 'front' ? 'user' : 'environment',
+        facingMode:
+          options.preferredCamera === "front" ? "user" : "environment",
         width: { ideal: 1280 },
         height: { ideal: 720 },
       },
@@ -120,13 +128,14 @@ export async function setupCameraStream(
     };
 
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    
+
     videoElement.srcObject = stream;
-    videoElement.setAttribute('playsinline', 'true'); // Required for iOS
-    
+    videoElement.setAttribute("playsinline", "true"); // Required for iOS
+
     await new Promise<void>((resolve, reject) => {
       videoElement.onloadedmetadata = () => {
-        videoElement.play()
+        videoElement
+          .play()
           .then(() => resolve())
           .catch(reject);
       };
@@ -135,7 +144,9 @@ export async function setupCameraStream(
 
     return stream;
   } catch (error) {
-    throw new Error(`Camera setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Camera setup failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -143,7 +154,7 @@ export async function setupCameraStream(
  * Stop camera stream and cleanup
  */
 export function stopCameraStream(stream: MediaStream): void {
-  stream.getTracks().forEach(track => {
+  stream.getTracks().forEach((track) => {
     track.stop();
   });
 }
@@ -167,10 +178,10 @@ export class QRScanner {
   async start(
     onScan: (result: ScanResult) => void,
     onError: (error: Error) => void,
-    options: ScannerOptions = {}
+    options: ScannerOptions = {},
   ): Promise<void> {
     if (this.scanning) {
-      throw new Error('Scanner is already running');
+      throw new Error("Scanner is already running");
     }
 
     try {
@@ -183,14 +194,18 @@ export class QRScanner {
 
         try {
           const result = await scanQRCode(this.video, options);
+
           onScan(result);
-          
+
           // Stop scanning after successful scan
           this.stop();
         } catch (error) {
           // Ignore scanning errors during continuous scanning
           // Only call onError for serious issues
-          if ((error instanceof Error && error.message.includes('Camera')) || (error instanceof Error && error.message.includes('permission'))) {
+          if (
+            (error instanceof Error && error.message.includes("Camera")) ||
+            (error instanceof Error && error.message.includes("permission"))
+          ) {
             onError(error as Error);
             this.stop();
           }
@@ -202,7 +217,7 @@ export class QRScanner {
         setTimeout(() => {
           if (this.scanning) {
             this.stop();
-            onError(new Error('Scan timeout reached'));
+            onError(new Error("Scan timeout reached"));
           }
         }, options.maxScanTime);
       }

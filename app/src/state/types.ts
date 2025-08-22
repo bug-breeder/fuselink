@@ -28,8 +28,15 @@ export interface Transfer {
   size: number;
   sentBytes: number;
   receivedBytes: number;
-  status: 'idle' | 'preparing' | 'sending' | 'receiving' | 'paused' | 'completed' | 'error';
-  direction: 'upload' | 'download';
+  status:
+    | "idle"
+    | "preparing"
+    | "sending"
+    | "receiving"
+    | "paused"
+    | "completed"
+    | "error";
+  direction: "upload" | "download";
   error?: string;
   startTime?: number;
   endTime?: number;
@@ -48,7 +55,13 @@ export interface SyncSession {
   id: string;
   deviceId: string;
   folderId: string;
-  status: 'connecting' | 'scanning' | 'diffing' | 'transferring' | 'completed' | 'error';
+  status:
+    | "connecting"
+    | "scanning"
+    | "diffing"
+    | "transferring"
+    | "completed"
+    | "error";
   startTime: number;
   endTime?: number;
   filesScanned: number;
@@ -62,6 +75,6 @@ export interface NotificationData {
   deviceName: string;
   folderId?: string;
   folderName?: string;
-  action: 'sync_request' | 'sync_complete' | 'pair_request';
+  action: "sync_request" | "sync_complete" | "pair_request";
   timestamp: number;
 }

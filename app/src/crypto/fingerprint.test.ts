@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+
 import {
   generateSafetyWords,
   generateDeviceFingerprint,
   verifyFingerprints,
   DeviceFingerprint,
-} from './fingerprint';
+} from "./fingerprint";
 
 const mockCrypto = {
   subtle: {
@@ -12,27 +13,28 @@ const mockCrypto = {
   },
 };
 
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(global, "crypto", {
   value: mockCrypto,
   writable: true,
 });
 
-describe('Fingerprint Generation and Verification', () => {
+describe("Fingerprint Generation and Verification", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('generateSafetyWords', () => {
-    it('should generate 6 safety words from public key', async () => {
+  describe("generateSafetyWords", () => {
+    it("should generate 6 safety words from public key", async () => {
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value',
-        y: 'test-y-value',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value",
+        y: "test-y-value",
       };
 
       const mockHash = new ArrayBuffer(32);
       const mockHashArray = new Uint8Array(mockHash);
+
       // Set specific values for predictable word selection
       mockHashArray[0] = 100;
       mockHashArray[1] = 200;
@@ -46,37 +48,40 @@ describe('Fingerprint Generation and Verification', () => {
       const words = await generateSafetyWords(publicKeyJwk);
 
       expect(words).toHaveLength(6);
-      expect(words.every(word => typeof word === 'string')).toBe(true);
-      expect(words.every(word => word.length > 0)).toBe(true);
+      expect(words.every((word) => typeof word === "string")).toBe(true);
+      expect(words.every((word) => word.length > 0)).toBe(true);
 
       // Verify digest was called with SHA-256 and proper data
       expect(mockCrypto.subtle.digest).toHaveBeenCalledTimes(1);
       const [algorithm, data] = mockCrypto.subtle.digest.mock.calls[0];
-      expect(algorithm).toBe('SHA-256');
-      expect(data.constructor.name).toBe('Uint8Array');
+
+      expect(algorithm).toBe("SHA-256");
+      expect(data.constructor.name).toBe("Uint8Array");
     });
 
-    it('should generate different words for different keys', async () => {
+    it("should generate different words for different keys", async () => {
       const publicKeyJwk1 = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value-1',
-        y: 'test-y-value-1',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value-1",
+        y: "test-y-value-1",
       };
 
       const publicKeyJwk2 = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value-2',
-        y: 'test-y-value-2',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value-2",
+        y: "test-y-value-2",
       };
 
       const mockHash1 = new ArrayBuffer(32);
       const mockHashArray1 = new Uint8Array(mockHash1);
+
       mockHashArray1.fill(0);
 
       const mockHash2 = new ArrayBuffer(32);
       const mockHashArray2 = new Uint8Array(mockHash2);
+
       mockHashArray2.fill(255);
 
       mockCrypto.subtle.digest
@@ -89,16 +94,17 @@ describe('Fingerprint Generation and Verification', () => {
       expect(words1).not.toEqual(words2);
     });
 
-    it('should generate consistent words for same key', async () => {
+    it("should generate consistent words for same key", async () => {
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'same-x-value',
-        y: 'same-y-value',
+        kty: "EC",
+        crv: "P-256",
+        x: "same-x-value",
+        y: "same-y-value",
       };
 
       const mockHash = new ArrayBuffer(32);
       const mockHashArray = new Uint8Array(mockHash);
+
       mockHashArray.fill(42);
 
       mockCrypto.subtle.digest.mockResolvedValue(mockHash);
@@ -109,38 +115,39 @@ describe('Fingerprint Generation and Verification', () => {
       expect(words1).toEqual(words2);
     });
 
-    it('should handle digest errors', async () => {
+    it("should handle digest errors", async () => {
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value',
-        y: 'test-y-value',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value",
+        y: "test-y-value",
       };
 
-      mockCrypto.subtle.digest.mockRejectedValue(new Error('Digest failed'));
+      mockCrypto.subtle.digest.mockRejectedValue(new Error("Digest failed"));
 
       await expect(generateSafetyWords(publicKeyJwk)).rejects.toThrow(
-        'Failed to generate safety words: Digest failed'
+        "Failed to generate safety words: Digest failed",
       );
     });
 
-    it('should select words from predefined wordlist', async () => {
+    it("should select words from predefined wordlist", async () => {
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-value',
-        y: 'test-y-value',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-value",
+        y: "test-y-value",
       };
 
       const mockHash = new ArrayBuffer(32);
       const mockHashArray = new Uint8Array(mockHash);
+
       // Use indices that map to known words
-      mockHashArray[0] = 0;   // First word
-      mockHashArray[1] = 1;   // Second word
-      mockHashArray[2] = 2;   // Third word
-      mockHashArray[3] = 3;   // Fourth word
-      mockHashArray[4] = 4;   // Fifth word
-      mockHashArray[5] = 5;   // Sixth word
+      mockHashArray[0] = 0; // First word
+      mockHashArray[1] = 1; // Second word
+      mockHashArray[2] = 2; // Third word
+      mockHashArray[3] = 3; // Fourth word
+      mockHashArray[4] = 4; // Fifth word
+      mockHashArray[5] = 5; // Sixth word
 
       mockCrypto.subtle.digest.mockResolvedValue(mockHash);
 
@@ -148,25 +155,26 @@ describe('Fingerprint Generation and Verification', () => {
 
       // Should be valid English words from BIP-39 subset
       expect(words).toHaveLength(6);
-      words.forEach(word => {
+      words.forEach((word) => {
         expect(word).toMatch(/^[a-z]+$/); // Only lowercase letters
         expect(word.length).toBeGreaterThan(2); // Meaningful words
       });
     });
   });
 
-  describe('generateDeviceFingerprint', () => {
-    it('should generate fingerprint from device ID and public key', async () => {
-      const deviceId = 'test-device-id';
+  describe("generateDeviceFingerprint", () => {
+    it("should generate fingerprint from device ID and public key", async () => {
+      const deviceId = "test-device-id";
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'test-x-coordinate',
-        y: 'test-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "test-x-coordinate",
+        y: "test-y-coordinate",
       };
 
       const mockHash = new ArrayBuffer(32);
       const mockHashArray = new Uint8Array(mockHash);
+
       mockHashArray[0] = 10;
       mockHashArray[1] = 20;
       mockHashArray[2] = 30;
@@ -178,7 +186,10 @@ describe('Fingerprint Generation and Verification', () => {
         .mockResolvedValueOnce(mockHash) // for safety words
         .mockResolvedValueOnce(mockHash); // for full hash
 
-      const fingerprint = await generateDeviceFingerprint(deviceId, publicKeyJwk);
+      const fingerprint = await generateDeviceFingerprint(
+        deviceId,
+        publicKeyJwk,
+      );
 
       expect(fingerprint).toEqual({
         deviceId,
@@ -189,49 +200,58 @@ describe('Fingerprint Generation and Verification', () => {
       expect(fingerprint.hash).toHaveLength(64); // 32 bytes as hex = 64 chars
     });
 
-    it('should generate same fingerprint for same inputs', async () => {
-      const deviceId = 'test-device-id';
+    it("should generate same fingerprint for same inputs", async () => {
+      const deviceId = "test-device-id";
       const publicKeyJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'same-x-coordinate',
-        y: 'same-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "same-x-coordinate",
+        y: "same-y-coordinate",
       };
 
       const mockHash = new ArrayBuffer(32);
       const mockHashArray = new Uint8Array(mockHash);
+
       mockHashArray.fill(123);
 
       mockCrypto.subtle.digest.mockResolvedValue(mockHash);
 
-      const fingerprint1 = await generateDeviceFingerprint(deviceId, publicKeyJwk);
-      const fingerprint2 = await generateDeviceFingerprint(deviceId, publicKeyJwk);
+      const fingerprint1 = await generateDeviceFingerprint(
+        deviceId,
+        publicKeyJwk,
+      );
+      const fingerprint2 = await generateDeviceFingerprint(
+        deviceId,
+        publicKeyJwk,
+      );
 
       expect(fingerprint1).toEqual(fingerprint2);
     });
 
-    it('should generate different fingerprints for different keys', async () => {
-      const deviceId = 'test-device-id';
+    it("should generate different fingerprints for different keys", async () => {
+      const deviceId = "test-device-id";
       const publicKeyJwk1 = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'first-x-coordinate',
-        y: 'first-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "first-x-coordinate",
+        y: "first-y-coordinate",
       };
 
       const publicKeyJwk2 = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'second-x-coordinate',
-        y: 'second-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "second-x-coordinate",
+        y: "second-y-coordinate",
       };
 
       const mockHash1 = new ArrayBuffer(32);
       const mockHashArray1 = new Uint8Array(mockHash1);
+
       mockHashArray1.fill(100);
 
       const mockHash2 = new ArrayBuffer(32);
       const mockHashArray2 = new Uint8Array(mockHash2);
+
       mockHashArray2.fill(200);
 
       mockCrypto.subtle.digest
@@ -240,25 +260,31 @@ describe('Fingerprint Generation and Verification', () => {
         .mockResolvedValueOnce(mockHash2) // safety words for key 2
         .mockResolvedValueOnce(mockHash2); // full hash for key 2
 
-      const fingerprint1 = await generateDeviceFingerprint(deviceId, publicKeyJwk1);
-      const fingerprint2 = await generateDeviceFingerprint(deviceId, publicKeyJwk2);
+      const fingerprint1 = await generateDeviceFingerprint(
+        deviceId,
+        publicKeyJwk1,
+      );
+      const fingerprint2 = await generateDeviceFingerprint(
+        deviceId,
+        publicKeyJwk2,
+      );
 
       expect(fingerprint1.safetyWords).not.toEqual(fingerprint2.safetyWords);
       expect(fingerprint1.hash).not.toBe(fingerprint2.hash);
     });
   });
 
-  describe('verifyFingerprints', () => {
-    it('should return true for identical fingerprints', async () => {
+  describe("verifyFingerprints", () => {
+    it("should return true for identical fingerprints", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2', // Different ID is OK
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-2", // Different ID is OK
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -266,16 +292,23 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false for different safety words', async () => {
+    it("should return false for different safety words", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'grape'],
-        hash: 'abcd1234',
+        deviceId: "device-2",
+        safetyWords: [
+          "apple",
+          "banana",
+          "cherry",
+          "date",
+          "elderberry",
+          "grape",
+        ],
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -283,16 +316,16 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false for different hashes', async () => {
+    it("should return false for different hashes", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'efgh5678',
+        deviceId: "device-2",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "efgh5678",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -300,16 +333,16 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false for different length fingerprints', async () => {
+    it("should return false for different length fingerprints", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['apple', 'banana', 'cherry'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["apple", "banana", "cherry"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-2",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -317,16 +350,16 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(false);
     });
 
-    it('should be case insensitive for safety words', async () => {
+    it("should be case insensitive for safety words", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-2",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -334,16 +367,16 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle empty arrays', async () => {
+    it("should handle empty arrays", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
+        deviceId: "device-1",
         safetyWords: [],
-        hash: 'abcd1234',
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
+        deviceId: "device-2",
         safetyWords: [],
-        hash: 'abcd1234',
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -351,16 +384,16 @@ describe('Fingerprint Generation and Verification', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle order sensitivity', async () => {
+    it("should handle order sensitivity", async () => {
       const fingerprint1: DeviceFingerprint = {
-        deviceId: 'device-1',
-        safetyWords: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-1",
+        safetyWords: ["apple", "banana", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
       const fingerprint2: DeviceFingerprint = {
-        deviceId: 'device-2',
-        safetyWords: ['banana', 'apple', 'cherry', 'date', 'elderberry', 'fig'],
-        hash: 'abcd1234',
+        deviceId: "device-2",
+        safetyWords: ["banana", "apple", "cherry", "date", "elderberry", "fig"],
+        hash: "abcd1234",
       };
 
       const result = await verifyFingerprints(fingerprint1, fingerprint2);
@@ -369,26 +402,27 @@ describe('Fingerprint Generation and Verification', () => {
     });
   });
 
-  describe('integration test', () => {
-    it('should generate and verify fingerprints for device pairing', async () => {
-      const deviceAId = 'device-a-id';
+  describe("integration test", () => {
+    it("should generate and verify fingerprints for device pairing", async () => {
+      const deviceAId = "device-a-id";
       const deviceA = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'device-a-x-coordinate',
-        y: 'device-a-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "device-a-x-coordinate",
+        y: "device-a-y-coordinate",
       };
 
-      const deviceBId = 'device-b-id';
+      const deviceBId = "device-b-id";
       const deviceB = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'device-b-x-coordinate',
-        y: 'device-b-y-coordinate',
+        kty: "EC",
+        crv: "P-256",
+        x: "device-b-x-coordinate",
+        y: "device-b-y-coordinate",
       };
 
       const mockHashA = new ArrayBuffer(32);
       const mockHashArrayA = new Uint8Array(mockHashA);
+
       mockHashArrayA[0] = 50;
       mockHashArrayA[1] = 100;
       mockHashArrayA[2] = 150;
@@ -398,6 +432,7 @@ describe('Fingerprint Generation and Verification', () => {
 
       const mockHashB = new ArrayBuffer(32);
       const mockHashArrayB = new Uint8Array(mockHashB);
+
       mockHashArrayB[0] = 60;
       mockHashArrayB[1] = 110;
       mockHashArrayB[2] = 160;
@@ -422,6 +457,7 @@ describe('Fingerprint Generation and Verification', () => {
         .mockResolvedValueOnce(mockHashA) // safety words for A again
         .mockResolvedValueOnce(mockHashA); // full hash for A again
       const fingerprintA2 = await generateDeviceFingerprint(deviceAId, deviceA);
+
       expect(await verifyFingerprints(fingerprintA, fingerprintA2)).toBe(true);
     });
   });

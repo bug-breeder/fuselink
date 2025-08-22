@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { ErrorBoundary } from "@/components/error-boundary";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import IndexPage from "@/pages/index";
 import DocsPage from "@/pages/docs";
 import PricingPage from "@/pages/pricing";
@@ -16,11 +16,13 @@ function App() {
 
   useEffect(() => {
     // Initialize device on app startup
-    initializeDevice().then((device) => {
-      setCurrentDevice(device);
-    }).catch((error) => {
-      console.error('Failed to initialize device:', error);
-    });
+    initializeDevice()
+      .then((device) => {
+        setCurrentDevice(device);
+      })
+      .catch((error) => {
+        console.error("Failed to initialize device:", error);
+      });
   }, [setCurrentDevice]);
 
   return (
