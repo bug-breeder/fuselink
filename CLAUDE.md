@@ -200,6 +200,46 @@ yarn test:coverage  # Run tests with coverage report
 yarn test:e2e       # Run E2E tests
 ```
 
+## Git Workflow
+
+**IMPORTANT: Always use feature branches and Pull Requests - never push directly to main**
+
+### Development Workflow
+1. **Create a new branch** for any changes:
+   ```bash
+   git checkout -b feature/your-feature-name
+   # or
+   git checkout -b fix/bug-description
+   # or  
+   git checkout -b docs/documentation-update
+   ```
+
+2. **Make your changes and commit**:
+   ```bash
+   git add .
+   git commit -m "descriptive commit message"
+   ```
+
+3. **Push branch to GitHub**:
+   ```bash
+   git push -u origin feature/your-feature-name
+   ```
+
+4. **Create Pull Request using GitHub CLI**:
+   ```bash
+   gh pr create --title "Your PR Title" --body "PR description"
+   ```
+
+5. **Never push directly to main** - all changes must go through PR review
+
+### Branch Naming Convention
+- `feat/` - New features
+- `fix/` - Bug fixes  
+- `docs/` - Documentation updates
+- `refactor/` - Code refactoring
+- `test/` - Test additions/updates
+- `chore/` - Maintenance tasks
+
 ## Development Notes
 
 - PWA requires HTTPS for many features (File System Access, Web Push)
