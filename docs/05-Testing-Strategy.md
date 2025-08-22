@@ -1,10 +1,14 @@
 # Testing Strategy — P2P Folder & File Sync
 
 ## Unit
-- Hashing, encryption/decryption, chunk assembler, diff rules, glob filters.
+- Crypto: ECDH keypairs, device ID derivation, fingerprint generation, safety words
+- WebRTC: SignalingClient, PeerManager, connection management, health monitoring
+- Core: Hashing, encryption/decryption, chunk assembler, diff rules, glob filters
 
-## Integration
-- Signaling handshake, ICE paths (mock STUN/TURN), resume scenarios, push subscription lifecycle.
+## Integration  
+- WebRTC: Complete signaling handshake, DataChannel establishment, reconnection
+- Backend: Go HTTP handlers, WebSocket hub, message routing, device registration
+- E2E: Real WebSocket connections, health endpoints, ICE server configuration
 
 ## End‑to‑End (Playwright)
 - QR pairing flow (mock camera or provide QR image).

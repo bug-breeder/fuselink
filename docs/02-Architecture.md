@@ -51,6 +51,7 @@ sequenceDiagram
 type Device = { id:string; name:string; pubKeyJwk:JsonWebKey; lastSeen?:number };
 type FolderMapping = { id:string; name:string; handle?:FileSystemDirectoryHandle; include?:string[]; exclude?:string[] };
 type Transfer = { id:string; deviceId:string; path:string; size:number; sentBytes:number; receivedBytes:number; status:'idle'|'sending'|'receiving'|'done'|'error' };
+type RTCState = { signalingConnected:boolean; peers:Map<string,PeerConnection>; connectionStats:ConnectionStats };
 ```
 
 **React Query**: server calls (register device, subscribe push, create pairing room, TURN creds).
@@ -87,8 +88,9 @@ type Transfer = { id:string; deviceId:string; path:string; size:number; sentByte
 - `POST /api/devices` — register/upsert device
 - `POST /api/push/subscribe` — store Web Push subscription
 - `POST /api/push/sync` — send sync push
-- `WS /ws/signaling/:roomId` — exchange SDP/ICE
-- `GET /api/turn-cred` — short‑lived TURN credentials
+- `WS /ws/signaling/:roomId` — exchange SDP/ICE with room-based routing
+- `GET /api/turn-cred` — Google STUN servers (simplified)
+- `GET /api/health` — service health check
 
 **Schema (sketch)**
 - `devices(id, name, pubkey_jwk, created_at)`

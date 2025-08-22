@@ -139,18 +139,38 @@ func (h *Handlers) PushSync(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// TURN server credentials
+type IceServersResponse struct {
+	IceServers []IceServer `json:"iceServers"`
+}
+
+type IceServer struct {
+	Urls []string `json:"urls"`
+}
+
+// ICE servers configuration (STUN only, no TURN credentials needed)
 func (h *Handlers) TurnCredentials(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// TODO: Implement TURN credential generation
+	// Return Google's free STUN servers
+	response := IceServersResponse{
+		IceServers: []IceServer{
+			{
+				Urls: []string{
+					"stun:stun.l.google.com:19302",
+					"stun:stun1.l.google.com:19302", 
+					"stun:stun2.l.google.com:19302",
+					"stun:stun3.l.google.com:19302",
+					"stun:stun4.l.google.com:19302",
+				},
+			},
+		},
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "TURN credentials endpoint - TODO",
-	})
+	json.NewEncoder(w).Encode(response)
 }
 
 // WebSocket signaling for WebRTC

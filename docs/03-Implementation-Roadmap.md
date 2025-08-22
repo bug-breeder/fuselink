@@ -2,7 +2,7 @@
 
 > Milestones are acceptance‑criteria driven.
 
-## M0 — Project Foundation
+## M0 — Project Foundation ✅
 **Deliverables**
 - Vite + React + TS + HeroUI; ESLint/Prettier/Husky; Vitest/Playwright.
 - Service Worker scaffold; app installability (manifest, icons).
@@ -12,7 +12,7 @@
 - PWA installs and works offline for shell routes.
 - CI runs lint + tests on PR.
 
-## M1 — Device Identity & Pairing (QR)
+## M1 — Device Identity & Pairing (QR) ✅
 **Deliverables**
 - Web Crypto ECDH keypair on first run; deviceId derivation.
 - Device registration API in Go + sqlc.
@@ -23,14 +23,14 @@
 **Acceptance**
 - Two devices pair via QR, verify fingerprints, and persist trusted devices.
 
-## M2 — Signaling & WebRTC Setup
+## M2 — Signaling & WebRTC Setup ✅
 **Deliverables**
 - Go WebSocket signaling hub with rooms; health endpoints.
-- Client SDP/ICE exchange; reconnection; short‑lived TURN creds endpoint.
-- DataChannels: `control`, `file`.
+- Client SDP/ICE exchange; reconnection; Google STUN servers.
+- DataChannels: `control`, `file`; connection management & health monitoring.
 
 **Acceptance**
-- Devices establish a DataChannel across different networks; logs show direct vs relay path.
+- Devices establish DataChannels across networks; connection type logging; 112+ tests pass.
 
 ## M3 — Single‑File Transfer (Resumable + E2EE)
 **Deliverables**

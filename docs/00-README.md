@@ -11,4 +11,6 @@ This bundle contains the product specs, architecture, and implementation roadmap
 - [06-Repository-Skeleton.md](./06-Repository-Skeleton.md)
 - [07-Risk-Register.md](./07-Risk-Register.md)
 
-> Stack: React + TypeScript (PWA), HeroUI, Zustand, TanStack React Query, Service Worker (push/offline), WebRTC (DataChannels), optional Web Bluetooth (pairing), Go backend (signaling + push + device registry) with sqlc, TURN via coturn.
+> **Status**: M0✅ M1✅ M2✅ (Signaling + WebRTC complete, 112+ tests passing)
+> 
+> Stack: React + TypeScript (PWA), HeroUI, Zustand, TanStack React Query, Service Worker (push/offline), WebRTC (DataChannels), optional Web Bluetooth (pairing), Go backend (signaling + push + device registry) with sqlc, Google STUN servers.

@@ -1,6 +1,15 @@
 # Data Contracts — P2P Folder & File Sync
 
-## 1. QR Payload
+## 1. Signaling Messages (WebSocket)
+```json
+{ "type": "offer", "deviceId": "...", "targetDeviceId": "...", "data": {"sdp": {...}} }
+{ "type": "answer", "deviceId": "...", "targetDeviceId": "...", "data": {"sdp": {...}} }
+{ "type": "ice-candidate", "deviceId": "...", "targetDeviceId": "...", "data": {"candidate": "..."} }
+{ "type": "device-info", "deviceId": "...", "data": {"name": "...", "capabilities": []} }
+{ "type": "error", "deviceId": "...", "data": {"message": "Connection failed"} }
+```
+
+## 2. QR Payload
 ```json
 {
   "v": 1,
@@ -9,13 +18,13 @@
   "pubKeyJwk": { "kty":"EC","crv":"P-256","x":"...","y":"..." },
   "signalingURL": "wss://signal.example.com/ws",
   "iceServers": [
-    { "urls": ["stun:stun1.example.com:3478"] },
-    { "urls": ["turn:turn1.example.com:3478?transport=udp","turns:turn1.example.com:443?transport=tcp"], "username": "u", "credential": "c", "ttl": 600 }
+    { "urls": ["stun:stun.l.google.com:19302"] },
+    { "urls": ["stun:stun1.l.google.com:19302"] }
   ]
 }
 ```
 
-## 2. Push Payload (Sync Request)
+## 3. Push Payload (Sync Request)
 ```json
 {
   "type": "SYNC_REQUEST",
@@ -25,7 +34,7 @@
 }
 ```
 
-## 3. Control Channel Messages
+## 4. Control Channel Messages
 ```json
 { "t": "HELLO", "deviceId":"...", "fingerprint":"..." }
 { "t": "DIFF_REQUEST", "folderId":"photos-1" }
