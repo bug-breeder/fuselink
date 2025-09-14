@@ -24,11 +24,11 @@ cd app && yarn dev
 ## Development Guidelines
 - **Don't reinvent the wheel** - use proven libraries (libp2p, Supabase, Origin UI)
 - **Keep it simple** - choose the path with least custom code
+- **Test-driven development** - write tests alongside implementation to ensure everything works out of the box
 - **Update docs as you implement** - but keep them short and concise, avoid over-documentation
 - Use **yarn** for frontend package management
 - Use **Origin UI** components (copy-paste from originui.com)
 - Use **libp2p** instead of manual WebRTC (eliminates 500+ lines of signaling code)
-- Write tests alongside implementation
 - Use feature branches + PRs (never push to main)
 - HTTPS required for Web Crypto API
 
@@ -52,8 +52,17 @@ cd app && yarn dev
 - **Avoid over-documentation** - focus on what developers actually need
 - **Code should be self-documenting** - clear naming and structure over lengthy comments
 
+## Testing Philosophy
+- **Test everything** - write tests alongside implementation (TDD approach)
+- **Ensure everything works out of the box** - no broken functionality should reach main
+- **Test components individually** - unit tests for each UI component and function
+- **Test integration** - verify libp2p, Supabase, and UI components work together
+- **Create test pages** - `/test` routes to manually verify functionality during development
+
 ## Current Status
-📋 **Planning Phase** - Documentation and specifications complete
-🔄 **Next**: Start implementing project foundation
+✅ **Phase 1 Complete** - Foundation implemented and tested
+🚀 **Running**: http://localhost:5173 (dev server)
+🧪 **Test page**: http://localhost:5173/test (component validation)
+🔄 **Next**: Phase 2 - Device Pairing (QR generation & scanning)
 
 See `/docs` for detailed specifications and implementation plan.
