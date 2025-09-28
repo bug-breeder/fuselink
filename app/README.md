@@ -1,69 +1,101 @@
-# React + TypeScript + Vite
+# FuseLink - P2P File Sync
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Next.js + Supabase implementation of the FuseLink peer-to-peer file synchronization application.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+✅ **Completed:**
+- Next.js 15 project structure with TypeScript
+- Supabase integration for backend services
+- shadcn/ui component library with Tailwind CSS
+- Responsive dashboard with device and folder management
+- Device pairing modal with QR code and magic link
+- Folder management with sync status
+- Theme provider with dark/light mode support
+- Toast notifications system
 
-## Expanding the ESLint configuration
+## Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend:** Next.js 15 + TypeScript + React 18
+- **Backend:** Supabase (PostgreSQL + Auth + Realtime)
+- **UI:** shadcn/ui + Radix UI + Tailwind CSS
+- **Styling:** Tailwind CSS with CSS custom properties
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Configure Supabase:**
+   - Update `.env` with your Supabase URL and anon key:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Features Overview
+
+### Dashboard
+- **Synced Folders:** View and manage folders with sync status and progress
+- **Paired Devices:** Manage connected devices with status indicators
+- **Responsive Design:** Works on desktop and mobile devices
+
+### Device Pairing
+- **QR Code:** Quick camera-based pairing
+- **Magic Link:** Shareable link for devices without cameras
+- **Safety Words:** Verification to prevent man-in-the-middle attacks
+
+### Theme Support
+- **Light/Dark Mode:** Automatic system theme detection
+- **Custom Colors:** Purple primary color scheme (Purpureus)
+- **Typography:** Inter for body text, Space Grotesk for headlines
+
+## Next Steps for P2P Implementation
+
+To complete the FuseLink vision, implement:
+
+1. **libp2p Integration:**
+   - WebRTC peer connections
+   - STUN/TURN server configuration
+   - Circuit relay for NAT traversal
+
+2. **Cryptography:**
+   - ECDH key exchange for device pairing
+   - AES-GCM file encryption
+   - BLAKE3 hashing for integrity
+
+3. **File System APIs:**
+   - File System Access API for Chromium browsers
+   - Origin Private File System (OPFS) for metadata
+   - File chunking and resume logic
+
+4. **Sync Engine:**
+   - Web Worker for background processing
+   - Conflict resolution algorithms
+   - Progressive sync with priority queues
+
+5. **Database Schema:**
+   - Supabase tables for devices, folders, and sync sessions
+   - Real-time subscriptions for live updates
+
+## Design System
+
+The app follows the product specifications with:
+- **Primary Color:** Purpureus (`hsl(262 80% 58%)`)
+- **Typography:** Inter + Space Grotesk
+- **Component Library:** shadcn/ui for consistent styling
+- **Responsive Design:** Mobile-first approach
+
+This implementation provides a solid foundation for building the complete P2P file synchronization system described in the project documentation.
