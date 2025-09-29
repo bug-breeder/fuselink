@@ -1,101 +1,50 @@
-# FuseLink - P2P File Sync
+# Vite & HeroUI Template
 
-A Next.js + Supabase implementation of the FuseLink peer-to-peer file synchronization application.
+This is a template for creating applications using Vite and HeroUI (v2).
 
-## Features
+[Try it on CodeSandbox](https://githubbox.com/heroui-inc/vite-template)
 
-✅ **Completed:**
-- Next.js 15 project structure with TypeScript
-- Supabase integration for backend services
-- shadcn/ui component library with Tailwind CSS
-- Responsive dashboard with device and folder management
-- Device pairing modal with QR code and magic link
-- Folder management with sync status
-- Theme provider with dark/light mode support
-- Toast notifications system
+## Technologies Used
 
-## Technology Stack
+- [Vite](https://vitejs.dev/guide/)
+- [HeroUI](https://heroui.com)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Tailwind Variants](https://tailwind-variants.org)
+- [TypeScript](https://www.typescriptlang.org)
+- [Framer Motion](https://www.framer.com/motion)
 
-- **Frontend:** Next.js 15 + TypeScript + React 18
-- **Backend:** Supabase (PostgreSQL + Auth + Realtime)
-- **UI:** shadcn/ui + Radix UI + Tailwind CSS
-- **Styling:** Tailwind CSS with CSS custom properties
+## How to Use
 
-## Getting Started
+To clone the project, run the following command:
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/heroui-inc/vite-template.git
+```
 
-2. **Configure Supabase:**
-   - Update `.env` with your Supabase URL and anon key:
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-   ```
+### Install dependencies
 
-3. **Start development server:**
-   ```bash
-   npm run dev
-   ```
+You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
 
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
+```bash
+npm install
+```
 
-## Features Overview
+### Run the development server
 
-### Dashboard
-- **Synced Folders:** View and manage folders with sync status and progress
-- **Paired Devices:** Manage connected devices with status indicators
-- **Responsive Design:** Works on desktop and mobile devices
+```bash
+npm run dev
+```
 
-### Device Pairing
-- **QR Code:** Quick camera-based pairing
-- **Magic Link:** Shareable link for devices without cameras
-- **Safety Words:** Verification to prevent man-in-the-middle attacks
+### Setup pnpm (optional)
 
-### Theme Support
-- **Light/Dark Mode:** Automatic system theme detection
-- **Custom Colors:** Purple primary color scheme (Purpureus)
-- **Typography:** Inter for body text, Space Grotesk for headlines
+If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
 
-## Next Steps for P2P Implementation
+```bash
+public-hoist-pattern[]=*@heroui/*
+```
 
-To complete the FuseLink vision, implement:
+After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
 
-1. **libp2p Integration:**
-   - WebRTC peer connections
-   - STUN/TURN server configuration
-   - Circuit relay for NAT traversal
+## License
 
-2. **Cryptography:**
-   - ECDH key exchange for device pairing
-   - AES-GCM file encryption
-   - BLAKE3 hashing for integrity
-
-3. **File System APIs:**
-   - File System Access API for Chromium browsers
-   - Origin Private File System (OPFS) for metadata
-   - File chunking and resume logic
-
-4. **Sync Engine:**
-   - Web Worker for background processing
-   - Conflict resolution algorithms
-   - Progressive sync with priority queues
-
-5. **Database Schema:**
-   - Supabase tables for devices, folders, and sync sessions
-   - Real-time subscriptions for live updates
-
-## Design System
-
-The app follows the product specifications with:
-- **Primary Color:** Purpureus (`hsl(262 80% 58%)`)
-- **Typography:** Inter + Space Grotesk
-- **Component Library:** shadcn/ui for consistent styling
-- **Responsive Design:** Mobile-first approach
-
-This implementation provides a solid foundation for building the complete P2P file synchronization system described in the project documentation.
+Licensed under the [MIT license](https://github.com/heroui-inc/vite-template/blob/main/LICENSE).
